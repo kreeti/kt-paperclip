@@ -39,7 +39,7 @@ module Paperclip
             unless value.send(CHECKS[option], option_value)
               error_message_key = options[:in] ? :in_between : option
               error_attrs.each do |error_attr_name|
-                record.errors.add(error_attr_name, error_message_key, filtered_options(value).merge(
+                record.errors.add(error_attr_name, error_message_key, **filtered_options(value).merge(
                                                                         min: min_value_in_human_size(record),
                                                                         max: max_value_in_human_size(record),
                                                                         count: human_size(option_value)
