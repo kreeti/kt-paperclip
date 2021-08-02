@@ -10,8 +10,7 @@ Here's a quick guide for contributing:
 
 1. Fork the repo.
 
-1. Make sure you have ImageMagick and Ghostscript installed. See [this section]
-(./README.md#image-processor) of the README.
+1. Make sure you have ImageMagick and Ghostscript installed. See [this section](./README.md#image-processor) of the README.
 
 1. Run the tests. We only take pull requests with passing tests, and it's great
 to know that you have a clean slate: `bundle && bundle exec rake`
@@ -78,9 +77,9 @@ Syntax
 
 * Two spaces, no tabs.
 * No trailing whitespace. Blank lines should not have any space.
-* Prefer &&/|| over and/or.
-* MyClass.my_method(my_arg) not my_method( my_arg ) or my_method my_arg.
-* a = b and not a=b.
+* Prefer `&&` instead of `and` ; prefer `||` instead of `or`.
+* Use `MyClass.my_method(my_arg)` instead of `MyClass.my_method( my_arg )` or `MyClass.my_method my_arg`.
+* `a = b` rather than `a=b` .
 * Follow the conventions you see used in the source already.
 
 And in case we didn't emphasize it enough: we love tests!
