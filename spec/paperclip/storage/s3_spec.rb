@@ -940,6 +940,19 @@ describe Paperclip::Storage::S3 do
         end
       end
 
+      context "and remove, calling S3 Object destroy once per unique style" do
+        before do
+          allow_any_instance_of(Aws::S3::Object).to receive(:exists?).and_return(true)
+          expect_any_instance_of(Aws::S3::Object).to receive(:delete).once
+          @dummy.avatar.clear(:original)
+          @dummy.destroy
+        end
+
+        it "succeeds" do
+          assert true
+        end
+      end
+
       context "that the file were missing" do
         before do
           allow_any_instance_of(Aws::S3::Object).to receive(:exists?).

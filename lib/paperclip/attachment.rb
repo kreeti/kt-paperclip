@@ -38,7 +38,7 @@ module Paperclip
     end
 
     attr_reader :name, :instance, :default_style, :convert_options, :queued_for_write, :whiny,
-                :options, :interpolator, :source_file_options
+                :options, :interpolator, :source_file_options, :queued_for_delete
     attr_accessor :post_processing
 
     # Creates an Attachment object. +name+ is the name of the attachment,

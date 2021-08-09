@@ -7,6 +7,52 @@ describe Paperclip::Storage::Fog do
   context "" do
     before { Fog.mock! }
 
+    context "deleting attachment styles" do
+      before do
+        rebuild_model styles: { medium: "300x300>", thumb: "100x100>" },
+                      storage: :fog,
+                      url: "/:attachment/:style/:filename",
+                      fog_directory: "paperclip",
+                      fog_credentials: fixture_file("fog.yml")
+        @file = File.open(fixture_file("5k.png"))
+        @dummy = Dummy.new
+        @dummy.avatar = @file
+        @dummy.save
+      end
+
+      after do
+        @file.close
+        FileUtils.rm_rf("tmp")
+      end
+
+      it "only issues a delete call once for each unique attachment style when nullifying attachment" do
+        @dummy.avatar.clear(:thumb)
+        @dummy.avatar = nil
+        assert_equal 4, @dummy.avatar.queued_for_delete.size
+
+        original = double("original")
+        medium = double("medium")
+        thumb = double("thumb")
+
+        allow(Fog::AWS::Storage::File).to receive(:new).and_return(original, medium, thumb)
+
+        expect(original).to receive(:destroy).once
+        expect(medium).to receive(:destroy).once
+        expect(thumb).to receive(:destroy).once
+        @dummy.save
+      end
+
+      it "only issues a delete call once for each unique attachment style when destroying model" do
+        @dummy.avatar.clear(:thumb)
+        assert_equal 1, @dummy.avatar.queued_for_delete.size
+
+        file = double("file")
+        allow(Fog::AWS::Storage::File).to receive(:new).and_return(file)
+        expect(file).to receive(:destroy).exactly(3).times
+        @dummy.destroy
+      end
+    end
+
     context "with credentials provided in a path string" do
       before do
         rebuild_model styles: { medium: "300x300>", thumb: "100x100>" },

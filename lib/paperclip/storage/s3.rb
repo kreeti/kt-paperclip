@@ -403,7 +403,7 @@ module Paperclip
       end
 
       def flush_deletes #:nodoc:
-        @queued_for_delete.each do |path|
+        @queued_for_delete.uniq.each do |path|
           begin
             log("deleting #{path}")
             s3_bucket.object(path.sub(%r{\A/}, "")).delete

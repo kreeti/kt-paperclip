@@ -135,7 +135,7 @@ module Paperclip
       end
 
       def flush_deletes
-        @queued_for_delete.each do |path|
+        @queued_for_delete.uniq.each do |path|
           log("deleting #{path}")
           directory.files.new(key: path).destroy
         end

@@ -57,7 +57,7 @@ module Paperclip
       end
 
       def flush_deletes #:nodoc:
-        @queued_for_delete.each do |path|
+        @queued_for_delete.uniq.each do |path|
           begin
             log("deleting #{path}")
             FileUtils.rm(path) if File.exist?(path)

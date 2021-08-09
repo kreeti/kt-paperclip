@@ -49,6 +49,29 @@ describe Paperclip::Storage::Filesystem do
         assert_equal @file.read, tempfile.read
         tempfile.close
       end
+
+      it "only issues a delete call once for each unique attachment style when nullifying attachment" do
+        @dummy.save
+        @dummy.avatar.clear(:thumbnail)
+        @dummy.avatar = nil
+        assert_equal 3, @dummy.avatar.queued_for_delete.size
+
+        expect(FileUtils).to receive(:rm).twice
+        @dummy.save
+
+        FileUtils.rm_rf("tmp")
+      end
+
+      it "only issues a delete call once for each unique attachment style when destroying model" do
+        @dummy.save
+        @dummy.avatar.clear(:thumbnail)
+        assert_equal 1, @dummy.avatar.queued_for_delete.size
+
+        expect(FileUtils).to receive(:rm).twice
+        @dummy.destroy
+
+        FileUtils.rm_rf("tmp")
+      end
     end
 
     context "with file that has space in file name" do
