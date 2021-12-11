@@ -35,8 +35,9 @@ module Paperclip
           options.slice(*AVAILABLE_CHECKS).each do |option, option_value|
             option_value = option_value.call(record) if option_value.is_a?(Proc)
             option_value = extract_option_value(option, option_value)
-
-            unless value.send(CHECKS[option], option_value)
+            operator = Rails::VERSION::MAJOR >= 7 ? COMPARE_CHECKS[option] : CHECKS[option]
+              
+            unless value.send(operator, option_value)
               error_message_key = options[:in] ? :in_between : option
               error_attrs.each do |error_attr_name|
                 record.errors.add(error_attr_name, error_message_key, **filtered_options(value).merge(
