@@ -30,10 +30,8 @@ module Paperclip
         SENSIBLE_DEFAULT
       elsif empty_file?
         EMPTY_TYPE
-      elsif calculated_type_matches.any?
-        calculated_type_matches.first
       else
-        type_from_file_contents || SENSIBLE_DEFAULT
+        calculated_type_matches.first || type_from_file_contents.first || SENSIBLE_DEFAULT
       end.to_s
     end
 
@@ -50,25 +48,27 @@ module Paperclip
     alias :empty? :empty_file?
 
     def calculated_type_matches
-      possible_types.select do |content_type|
-        content_type == type_from_file_contents
-      end
+      possible_types & types_from_file_contents
     end
 
     def possible_types
       MIME::Types.type_for(@filepath).collect(&:content_type)
     end
 
-    def type_from_file_contents
-      type_from_marcel || type_from_file_command
+    def types_from_file_contents
+      if types_from_marcel.any?
+        types_from_marcel
+      else
+        [type_from_file_command]
+      end
     rescue Errno::ENOENT => e
       Paperclip.log("Error while determining content type: #{e}")
-      SENSIBLE_DEFAULT
+      []
     end
 
-    def type_from_marcel
-      @type_from_marcel ||= File.open(@filepath) do |file|
-        Marcel::Magic.by_magic(file).try(:type)
+    def types_from_marcel
+      @types_from_marcel ||= File.open(@filepath) do |file|
+        Marcel::Magic.all_by_magic(file).map(&:type)
       end
     end
 
