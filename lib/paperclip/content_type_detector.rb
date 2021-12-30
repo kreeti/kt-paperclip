@@ -31,7 +31,9 @@ module Paperclip
       elsif empty_file?
         EMPTY_TYPE
       else
-        calculated_type_matches.first || type_from_file_contents.first || SENSIBLE_DEFAULT
+        calculated_type_matches.first ||
+          type_from_file_contents.first ||
+          SENSIBLE_DEFAULT
       end.to_s
     end
 
