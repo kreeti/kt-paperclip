@@ -7,6 +7,12 @@ describe Paperclip::ContentTypeDetector do
                  Paperclip::ContentTypeDetector.new(file.path).detect
   end
 
+  it "returns a more specific content type based on the filename if it matches multiple content types" do
+    file = File.new(fixture_file("sample.xlsm"))
+    assert_equal "application/vnd.ms-excel.sheet.macroenabled.12",
+                 Paperclip::ContentTypeDetector.new(file.path).detect
+  end
+
   it "gives a sensible default when the name is empty" do
     assert_equal "application/octet-stream", Paperclip::ContentTypeDetector.new("").detect
   end
