@@ -69,8 +69,10 @@ module Paperclip
     def type_from_marcel
       return @type_from_marcel if defined? @type_from_marcel
 
-      @type_from_marcel = Marcel::MimeType.for Pathname.new(@filepath), name: @filepath
-      # Marcel::MineType returns 'application/octet-stream' if it can't find a valid type.
+      @type_from_marcel = Marcel::MimeType.for Pathname.new(@filepath),
+                                               name: @filepath
+      # Marcel::MineType returns 'application/octet-stream' if it can't find
+      # a valid type.
       @type_from_marcel = nil if @type_from_marcel == SENSIBLE_DEFAULT
     end
 
