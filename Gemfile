@@ -12,7 +12,8 @@ group :development, :test do
   gem "builder"
   gem "listen", "~> 3.0.8"
   gem "rspec"
-  gem "rubocop", require: false
+  # Hound only supports certain versions of Rubocop -- 1.22.1 is currently the most recent one supported.
+  gem "rubocop", "1.22.1", require: false
   gem "rubocop-rails"
   gem "sprockets", "3.7.2"
 end
