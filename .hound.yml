@@ -1048,7 +1048,7 @@ Lint/UselessAssignment:
   Description: Checks for useless assignment to a local variable.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#underscore-unused-vars
   Enabled: true
-Lint/UselessComparison:
+Lint/BinaryOperatorWithIdenticalOperands:
   Description: Checks for comparison of something with itself.
   Enabled: true
 Lint/UselessElseWithoutRescue:

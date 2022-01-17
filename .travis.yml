@@ -4,6 +4,7 @@ rvm:
   - 2.2.2
   - jruby-19mode
   - rbx-2
+  - 2.7
 
 script: "bundle exec rake clean spec cucumber"
 
