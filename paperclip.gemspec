@@ -36,7 +36,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('appraisal')
   s.add_development_dependency('mocha')
   s.add_development_dependency('aws-sdk', '>= 2.3.0', '< 3.0')
-  s.add_development_dependency('bourne')
+  s.add_development_dependency('bourne', '< 1.6')
   s.add_development_dependency('cucumber-rails')
   s.add_development_dependency('cucumber-expressions', '4.0.3') # TODO: investigate failures on 4.0.4
   s.add_development_dependency('aruba', '~> 0.9.0')
