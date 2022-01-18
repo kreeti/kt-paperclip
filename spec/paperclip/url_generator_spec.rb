@@ -195,6 +195,16 @@ describe Paperclip::UrlGenerator do
       "expected the interpolator to be passed #{expected.inspect} but it wasn't"
   end
 
+  it "doesn't emit deprecation warnings" do
+    expected = "the expected result"
+    mock_interpolator = MockInterpolator.new(result: expected)
+    options = { interpolator: mock_interpolator }
+    mock_attachment = MockAttachment.new(options)
+    url_generator = Paperclip::UrlGenerator.new(mock_attachment)
+
+    expect { url_generator.for(:style_name, escape: true) }.to_not(output(/URI\.(un)?escape is obsolete/).to_stderr)
+  end
+
   describe "should be able to escape (, ), [, and ]." do
     def generate(expected, updated_at=nil)
       mock_interpolator = MockInterpolator.new(result: expected)

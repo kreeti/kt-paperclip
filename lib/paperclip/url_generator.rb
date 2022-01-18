@@ -3,6 +3,13 @@ require 'active_support/core_ext/module/delegation'
 
 module Paperclip
   class UrlGenerator
+    class << self
+      def encoder
+        @encoder ||= URI::RFC2396_Parser.new
+      end
+      delegate :escape, :unescape, to: :encoder
+    end
+
     def initialize(attachment)
       @attachment = attachment
     end
@@ -65,7 +72,7 @@ module Paperclip
       if url.respond_to?(:escape)
         url.escape
       else
-        URI.escape(url).gsub(escape_regex){|m| "%#{m.ord.to_s(16).upcase}" }
+        self.class.escape(url).gsub(escape_regex){|m| "%#{m.ord.to_s(16).upcase}" }
       end
     end
 
