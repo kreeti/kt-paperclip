@@ -358,8 +358,7 @@ module Paperclip
           begin
             log("saving #{path(style)}")
             write_options = {
-              content_type: file.content_type,
-              acl: s3_permissions(style)
+              content_type: file.content_type
             }
 
             # add storage class for this style if defined
