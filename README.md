@@ -1,5 +1,6 @@
 Paperclip
 =========
+Made changes to support S3 bucket policy
 
 We plan to support and maintain paperclip, as well as clean it up.
 
