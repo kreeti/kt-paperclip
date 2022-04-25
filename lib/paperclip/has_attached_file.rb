@@ -39,12 +39,19 @@ module Paperclip
       name = @name
       options = @options
 
+      attachment_klass = if options[:enable_storage_preinitialization_experiment] && options[:storage].to_s.downcase == 's3'
+        require "paperclip/s3_attachment"
+        S3Attachment
+      else
+        Attachment
+      end
+
       @klass.send :define_method, @name do |*args|
         ivar = "@attachment_#{name}"
         attachment = instance_variable_get(ivar)
 
         if attachment.nil?
-          attachment = Attachment.new(name, self, options)
+          attachment = attachment_klass.new(name, self, options)
           instance_variable_set(ivar, attachment)
         end
 

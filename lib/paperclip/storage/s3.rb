@@ -182,6 +182,42 @@ module Paperclip
         end
       end
 
+      def self.included(base)
+        begin
+          require "aws-sdk-s3"
+        rescue LoadError => e
+          e.message << " (You may need to install the aws-sdk-s3 gem)"
+          raise e
+        end
+
+        unless Paperclip::Interpolations.respond_to? :s3_alias_url
+          Paperclip.interpolates(:s3_alias_url) do |attachment, style|
+            protocol = attachment.s3_protocol(style, true)
+            host = attachment.s3_host_alias
+            path = attachment.path(style).
+                   split("/")[attachment.s3_prefixes_in_alias..-1].
+                   join("/").
+                   sub(%r{\A/}, "")
+            "#{protocol}//#{host}/#{path}"
+          end
+        end
+        unless Paperclip::Interpolations.respond_to? :s3_path_url
+          Paperclip.interpolates(:s3_path_url) do |attachment, style|
+            "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).sub(%r{\A/}, '')}"
+          end
+        end
+        unless Paperclip::Interpolations.respond_to? :s3_domain_url
+          Paperclip.interpolates(:s3_domain_url) do |attachment, style|
+            "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).sub(%r{\A/}, '')}"
+          end
+        end
+        unless Paperclip::Interpolations.respond_to? :asset_host
+          Paperclip.interpolates(:asset_host) do |attachment, style|
+            attachment.path(style).sub(%r{\A/}, "").to_s
+          end
+        end
+      end
+
       def expiring_url(time = 3600, style_name = default_style)
         if path(style_name)
           base_options = { expires_in: time }

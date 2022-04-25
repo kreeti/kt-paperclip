@@ -10,30 +10,31 @@ module Paperclip
   class Attachment
     def self.default_options
       @default_options ||= {
-        convert_options:                  {},
-        default_style:                    :original,
-        default_url:                      "/:attachment/:style/missing.png",
-        escape_url:                       true,
-        restricted_characters:            /[&$+,\/:;=?@<>\[\]\{\}\|\\\^~%# ]/,
-        filename_cleaner:                 nil,
-        hash_data:                        ":class/:attachment/:id/:style/:updated_at",
-        hash_digest:                      "SHA1",
-        interpolator:                     Paperclip::Interpolations,
-        only_process:                     [],
-        path:                             ":rails_root/public:url",
-        preserve_files:                   false,
-        processors:                       [:thumbnail],
-        source_file_options:              {},
-        storage:                          :filesystem,
-        styles:                           {},
-        url:                              "/system/:class/:attachment/:id_partition/:style/:filename",
-        url_generator:                    Paperclip::UrlGenerator,
-        use_default_time_zone:            true,
-        use_timestamp:                    true,
-        whiny:                            Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails],
-        validate_media_type:              true,
-        adapter_options:                  { hash_digest: Digest::MD5 },
-        check_validity_before_processing: true
+        convert_options:                             {},
+        default_style:                               :original,
+        default_url:                                 "/:attachment/:style/missing.png",
+        escape_url:                                  true,
+        restricted_characters:                       /[&$+,\/:;=?@<>\[\]\{\}\|\\\^~%# ]/,
+        filename_cleaner:                            nil,
+        hash_data:                                   ":class/:attachment/:id/:style/:updated_at",
+        hash_digest:                                 "SHA1",
+        interpolator:                                Paperclip::Interpolations,
+        only_process:                                [],
+        path:                                        ":rails_root/public:url",
+        preserve_files:                              false,
+        processors:                                  [:thumbnail],
+        source_file_options:                         {},
+        storage:                                     :filesystem,
+        styles:                                      {},
+        url:                                         "/system/:class/:attachment/:id_partition/:style/:filename",
+        url_generator:                               Paperclip::UrlGenerator,
+        use_default_time_zone:                       true,
+        use_timestamp:                               true,
+        whiny:                                       Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails],
+        validate_media_type:                         true,
+        adapter_options:                             { hash_digest: Digest::MD5 },
+        check_validity_before_processing:            true,
+        enable_storage_preinitialization_experiment: false
       }
     end
 
@@ -87,7 +88,7 @@ module Paperclip
       @source_file_options   = options[:source_file_options]
       @whiny                 = options[:whiny]
 
-      initialize_storage
+      initialize_storage unless @options[:enable_storage_preinitialization_experiment] && @options[:storage].to_s.downcase == 's3'
     end
 
     # What gets called when you call instance.attachment = File. It clears
