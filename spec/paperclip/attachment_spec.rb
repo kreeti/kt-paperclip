@@ -1267,7 +1267,7 @@ describe Paperclip::Attachment do
                 @existing_names.each { |f| assert_file_not_exists(f) }
               end
 
-              it "deletes the files when you call #delete" do
+              it "deletes the files when you call #destroy" do
                 expect(@attachment).to receive(:instance_write).with(:file_name, nil)
                 expect(@attachment).to receive(:instance_write).with(:content_type, nil)
                 expect(@attachment).to receive(:instance_write).with(:file_size, nil)
@@ -1275,6 +1275,32 @@ describe Paperclip::Attachment do
                 expect(@attachment).to receive(:instance_write).with(:updated_at, nil)
                 @attachment.destroy
                 @existing_names.each { |f| assert_file_not_exists(f) }
+              end
+
+              it "deletes the files when you destroy the model" do
+                expect(@attachment).to receive(:instance_write).with(:file_name, nil)
+                expect(@attachment).to receive(:instance_write).with(:content_type, nil)
+                expect(@attachment).to receive(:instance_write).with(:file_size, nil)
+                expect(@attachment).to receive(:instance_write).with(:fingerprint, nil)
+                expect(@attachment).to receive(:instance_write).with(:updated_at, nil)
+                @attachment.instance.destroy
+                @existing_names.each { |f| assert_file_not_exists(f) }
+              end
+
+              context "when 'hide_attrs_to_be_destroyed' option is set to false" do
+                before do
+                  @attachment.options[:hide_attrs_to_be_destroyed] = false
+                end
+
+                it "does not override attachment-related attributes and deletes the files" do
+                  expect(@attachment).not_to receive(:instance_write)
+                  expect(@attachment).not_to receive(:instance_write)
+                  expect(@attachment).not_to receive(:instance_write)
+                  expect(@attachment).not_to receive(:instance_write)
+                  expect(@attachment).not_to receive(:instance_write)
+                  @attachment.instance.destroy
+                  @existing_names.each { |f| assert_file_not_exists(f) }
+                end
               end
 
               context "when keeping old files" do
@@ -1304,7 +1330,7 @@ describe Paperclip::Attachment do
                   @existing_names.each { |f| assert_file_exists(f) }
                 end
 
-                it "keeps the files when you call #delete" do
+                it "keeps the files when you call #destroy" do
                   expect(@attachment).to receive(:instance_write).with(:file_name, nil)
                   expect(@attachment).to receive(:instance_write).with(:content_type, nil)
                   expect(@attachment).to receive(:instance_write).with(:file_size, nil)

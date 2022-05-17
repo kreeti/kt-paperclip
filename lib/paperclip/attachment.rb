@@ -33,7 +33,8 @@ module Paperclip
         whiny:                            Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails],
         validate_media_type:              true,
         adapter_options:                  { hash_digest: Digest::MD5 },
-        check_validity_before_processing: true
+        check_validity_before_processing: true,
+        hide_attrs_to_be_destroyed:       true
       }
     end
 
@@ -69,6 +70,8 @@ module Paperclip
     # +interpolator+ - the object used to interpolate filenames and URLs. Defaults to Paperclip::Interpolations
     # +url_generator+ - the object used to generate URLs, using the interpolator. Defaults to Paperclip::UrlGenerator
     # +escape_url+ - Perform URI escaping to URLs. Defaults to true
+    # +hide_attrs_to_be_destroyed+ - whether attachment-related attributes should be displayed when destroying a record.
+    #                                Defaults to false.
     def initialize(name, instance, options = {})
       @name              = name.to_sym
       @name_string       = name.to_s
@@ -563,12 +566,10 @@ module Paperclip
           path(style) if exists?(style)
         end.compact
       end
-      instance_write(:file_name, nil)
-      instance_write(:content_type, nil)
-      instance_write(:file_size, nil)
-      instance_write(:fingerprint, nil)
-      instance_write(:created_at, nil) if has_enabled_but_unset_created_at?
-      instance_write(:updated_at, nil)
+
+      return if show_attrs_and_destroy_callback_triggered?
+
+      clear_all_attachment_attributes
     end
 
     def flush_errors #:nodoc:
@@ -612,6 +613,22 @@ module Paperclip
     # Check if attachment database table has a created_at field which is not yet set
     def has_enabled_but_unset_created_at?
       able_to_store_created_at? && !instance_read(:created_at)
+    end
+
+    # Checks whether the option to hide attributes to be destroyed is disabled and whether a destroy callback has been
+    # invoked when deleting the entire record.
+    def show_attrs_and_destroy_callback_triggered?
+      !@options[:hide_attrs_to_be_deleted] && instance.instance_variable_get(:@_destroy_callback_already_called)
+    end
+
+    # Sets attachment-related attributes to `nil`.
+    def clear_all_attachment_attributes
+      instance_write(:file_name, nil)
+      instance_write(:content_type, nil)
+      instance_write(:file_size, nil)
+      instance_write(:fingerprint, nil)
+      instance_write(:created_at, nil) if has_enabled_but_unset_created_at?
+      instance_write(:updated_at, nil)
     end
   end
 end
