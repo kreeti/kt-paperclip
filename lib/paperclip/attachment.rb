@@ -71,7 +71,7 @@ module Paperclip
     # +url_generator+ - the object used to generate URLs, using the interpolator. Defaults to Paperclip::UrlGenerator
     # +escape_url+ - Perform URI escaping to URLs. Defaults to true
     # +hide_attrs_to_be_destroyed+ - whether attachment-related attributes should be displayed when destroying a record.
-    #                                Defaults to false.
+    #                                Defaults to true.
     def initialize(name, instance, options = {})
       @name              = name.to_sym
       @name_string       = name.to_s
