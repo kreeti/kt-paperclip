@@ -132,6 +132,7 @@ module Paperclip
         base.instance_eval do
           @s3_options     = @options[:s3_options] || {}
           @s3_permissions = set_permissions(@options[:s3_permissions])
+          @s3_acl_enabled = @options[:s3_acl_enabled] || true
           @s3_protocol    = @options[:s3_protocol] || ""
           @s3_metadata = @options[:s3_metadata] || {}
           @s3_headers = {}
@@ -359,8 +360,11 @@ module Paperclip
             log("saving #{path(style)}")
             write_options = {
               content_type: file.content_type,
-              acl: s3_permissions(style)
             }
+
+            if @s3_acl_enabled
+              write_options[:acl] = s3_permissions(style)
+            end
 
             # add storage class for this style if defined
             storage_class = s3_storage_class(style)
