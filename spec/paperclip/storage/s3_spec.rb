@@ -411,6 +411,62 @@ describe Paperclip::Storage::S3 do
     end
   end
 
+  context "An attachment that uses S3 for storage with acl disabled" do
+    before do
+      rebuild_model(
+        aws2_add_region.merge(
+          storage: :s3,
+          styles: { thumb: ["90x90#", :jpg] },
+          bucket: "bucket",
+          s3_acl_enabled: false,
+          s3_credentials: {
+            "access_key_id" => "12345",
+            "secret_access_key" => "54321"
+          }
+        )
+      )
+
+      @file = File.new(fixture_file("5k.png"), "rb")
+      @dummy = Dummy.new
+      @dummy.avatar = @file
+      @dummy.save
+    end
+
+    context "reprocess" do
+      before do
+        @object = double
+        allow(@dummy.avatar).to receive(:s3_object).with(:original).and_return(@object)
+        allow(@dummy.avatar).to receive(:s3_object).with(:thumb).and_return(@object)
+        allow(@object).to receive(:get).and_yield(@file.read)
+        allow(@object).to receive(:exists?).and_return(true)
+        allow(@object).to receive(:download_file).with(anything)
+      end
+
+      it "uploads original" do
+        expect(@object).to receive(:upload_file).with(
+          anything,
+          content_type: "image/png",
+        ).and_return(true)
+        @dummy.avatar.reprocess!
+        expect(@object).to receive(:upload_file).with(
+          anything,
+          content_type: "image/png",
+        ).and_return(true)
+        @dummy.avatar.reprocess!
+      end
+
+      it "doesn't upload original" do
+        expect(@object).to receive(:upload_file).with(
+          anything,
+          content_type: "image/png",
+        ).and_return(true)
+        @dummy.avatar.reprocess!
+      end
+    end
+
+    after { @file.close }
+  end
+
   context "An attachment that uses S3 for storage and has styles" do
     before do
       rebuild_model(

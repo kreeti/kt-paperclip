@@ -132,11 +132,13 @@ module Paperclip
         base.instance_eval do
           @s3_options     = @options[:s3_options] || {}
           @s3_permissions = set_permissions(@options[:s3_permissions])
-          @s3_acl_enabled = @options[:s3_acl_enabled] || true
           @s3_protocol    = @options[:s3_protocol] || ""
           @s3_metadata = @options[:s3_metadata] || {}
           @s3_headers = {}
           merge_s3_headers(@options[:s3_headers], @s3_headers, @s3_metadata)
+
+          @s3_acl_enabled = @options[:s3_acl_enabled]
+          @s3_acl_enabled = true if @s3_acl_enabled.nil?
 
           @s3_storage_class = set_storage_class(@options[:s3_storage_class])
 
