@@ -433,15 +433,23 @@ module Paperclip
       def find_credentials(creds)
         case creds
         when File
-          YAML::safe_load(ERB.new(File.read(creds.path)).result, [], [], true)
+          load_credentials_from_file(creds.path)
         when String, Pathname
-          YAML::safe_load(ERB.new(File.read(creds)).result, [], [], true)
+          load_credentials_from_file(creds)
         when Hash
           creds
         when NilClass
           {}
         else
           raise ArgumentError, "Credentials given are not a path, file, proc, or hash."
+        end
+      end
+
+      def load_credentials_from_file(path)
+        if Gem::Version.new(Psych::VERSION) >= Gem::Version.new("3.1.0")
+          YAML::safe_load(ERB.new(File.read(path)).result, aliases: true)
+        else
+          YAML::safe_load(ERB.new(File.read(path)).result, [], [], true)
         end
       end
 
