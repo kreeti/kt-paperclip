@@ -1287,9 +1287,9 @@ describe Paperclip::Attachment do
                 @existing_names.each { |f| assert_file_not_exists(f) }
               end
 
-              context "when 'hide_attrs_to_be_destroyed' option is set to false" do
+              context "when 'return_file_attributes_on_destroy' option is set to true" do
                 before do
-                  @attachment.options[:hide_attrs_to_be_destroyed] = false
+                  @attachment.options[:return_file_attributes_on_destroy] = true
                 end
 
                 it "does not override attachment-related attributes and deletes the files" do
