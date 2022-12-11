@@ -76,6 +76,7 @@ module Paperclip
       Paperclip.run("file", "-b --mime :file", file: @file.path).
         split(/[:;\s]+/).first
     rescue Terrapin::CommandLineError
+      Paperclip.log("Problem getting type from `file` command.  Possible that `file` doesn't exist on this system.  Content Type validations don't work without this.  Possibly other stuff. YMMV.  Yay!")
       ""
     end
 
