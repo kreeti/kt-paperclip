@@ -54,10 +54,14 @@ module Paperclip
     # Returns the interpolated URL. Will raise an error if the url itself
     # contains ":url" to prevent infinite recursion. This interpolation
     # is used in the default :path to ease default specifications.
-    RIGHT_HERE = "#{__FILE__.gsub(%r{\A\./}, '')}:#{__LINE__ + 3}"
     def url(attachment, style_name)
-      raise Errors::InfiniteInterpolationError if caller.any? { |b| b.index(RIGHT_HERE) }
+      if Thread.current.thread_variable_get(:kt_paperclip_no_recursion)
+        raise Errors::InfiniteInterpolationError
+      end
+      Thread.current.thread_variable_set(:kt_paperclip_no_recursion, true)
       attachment.url(style_name, timestamp: false, escape: false)
+    ensure
+      Thread.current.thread_variable_set(:kt_paperclip_no_recursion, false)
     end
 
     # Returns the timestamp as defined by the <attachment>_updated_at field
