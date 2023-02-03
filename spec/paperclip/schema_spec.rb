@@ -34,7 +34,7 @@ describe Paperclip::Schema do
         expect(columns).to include(["avatar_file_name", "varchar"])
         expect(columns).to include(["avatar_content_type", "varchar"])
         expect(columns).to include(["avatar_file_size", "bigint"])
-        expect(columns).to include(["avatar_updated_at", "datetime(6)"])
+        expect(columns).to include(["avatar_updated_at", "datetime"])
       end
 
       it "displays deprecation warning" do
@@ -59,7 +59,7 @@ describe Paperclip::Schema do
         expect(columns).to include(["avatar_file_name", "varchar"])
         expect(columns).to include(["avatar_content_type", "varchar"])
         expect(columns).to include(["avatar_file_size", "bigint"])
-        expect(columns).to include(["avatar_updated_at", "datetime(6)"])
+        expect(columns).to include(["avatar_updated_at", "datetime"])
       end
     end
 
@@ -98,7 +98,7 @@ describe Paperclip::Schema do
           expect(columns).to include(["avatar_file_name", "varchar"])
           expect(columns).to include(["avatar_content_type", "varchar"])
           expect(columns).to include(["avatar_file_size", "bigint"])
-          expect(columns).to include(["avatar_updated_at", "datetime(6)"])
+          expect(columns).to include(["avatar_updated_at", "datetime"])
         end
       end
 
@@ -128,11 +128,11 @@ describe Paperclip::Schema do
           expect(columns).to include(["avatar_file_name", "varchar"])
           expect(columns).to include(["avatar_content_type", "varchar"])
           expect(columns).to include(["avatar_file_size", "bigint"])
-          expect(columns).to include(["avatar_updated_at", "datetime(6)"])
+          expect(columns).to include(["avatar_updated_at", "datetime"])
           expect(columns).to include(["photo_file_name", "varchar"])
           expect(columns).to include(["photo_content_type", "varchar"])
           expect(columns).to include(["photo_file_size", "bigint"])
-          expect(columns).to include(["photo_updated_at", "datetime(6)"])
+          expect(columns).to include(["photo_updated_at", "datetime"])
         end
       end
 
