@@ -16,7 +16,7 @@ module Paperclip
       def validate_each(record, attribute, value)
         base_attribute = attribute.to_sym
         attribute = "#{attribute}_content_type".to_sym
-        value = record.send :read_attribute_for_validation, attribute
+        value = record.read_attribute_for_validation(attribute)
 
         return if (value.nil? && options[:allow_nil]) || (value.blank? && options[:allow_blank])
 

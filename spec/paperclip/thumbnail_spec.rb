@@ -491,7 +491,9 @@ describe Paperclip::Thumbnail do
       tempfile = Tempfile.new("f")
       tempfile_additional_chars = tempfile.path.split("/")[-1].length + 15
       image_file = File.new(fixture_file("5k.png"), "rb")
-      @file = Tempfile.new("f" * (255 - tempfile_additional_chars))
+      filename = "f" * (255 - tempfile_additional_chars)
+      @file = Tempfile.new(filename)
+      @file.binmode
       @file.write(image_file.read)
       @file.rewind
     end

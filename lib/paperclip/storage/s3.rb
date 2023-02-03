@@ -190,7 +190,7 @@ module Paperclip
           base_options = { expires_in: time }
           s3_object(style_name).presigned_url(
             :get,
-            base_options.merge(s3_url_options)
+            **base_options.merge(s3_url_options)
           ).to_s
         else
           url(style_name)
@@ -386,7 +386,7 @@ module Paperclip
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
             write_options.merge!(@s3_headers)
 
-            s3_object(style).upload_file(file.path, write_options)
+            s3_object(style).upload_file(file.path, **write_options)
           rescue ::Aws::S3::Errors::NoSuchBucket
             create_bucket
             retry

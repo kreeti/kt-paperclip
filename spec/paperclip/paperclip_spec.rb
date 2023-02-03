@@ -63,7 +63,7 @@ describe Paperclip do
   context "Calling Paperclip.run with a logger" do
     it "passes the defined logger if :log_command is set" do
       Paperclip.options[:log_command] = true
-      expect(Terrapin::CommandLine).to receive(:new).with("convert", "stuff", logger: Paperclip.logger).and_return(double(run: nil))
+      expect(Terrapin::CommandLine).to receive(:new).with("convert", "stuff", { logger: Paperclip.logger }).and_return(double(run: nil))
       Paperclip.run("convert", "stuff")
     end
   end

@@ -29,7 +29,7 @@ module Paperclip
           error_attrs << attr_name
         end
 
-        value = record.send(:read_attribute_for_validation, attr_name)
+        value = record.read_attribute_for_validation(attr_name)
 
         unless value.blank?
           options.slice(*AVAILABLE_CHECKS).each do |option, option_value|
