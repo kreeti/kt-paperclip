@@ -10,8 +10,10 @@
         format: "%n %u"
         units:
           byte:
-            one:   "baidht"
-            other: "baidht(ean)"
+            one:   "bhaidht"
+            two:   "bhaidht"
+            few:   "baidhtean"
+            other: "baidht"
           kb: "KB"
           mb: "MB"
           gb: "GB"
