@@ -147,23 +147,35 @@ describe Paperclip::Geometry do
 
     it "does not generate from a bad file" do
       file = "/home/This File Does Not Exist.omg"
-      expect { @geo = Paperclip::Geometry.from_file(file) }.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError)
+      expect do
+        @geo = Paperclip::Geometry.from_file(file)
+      end.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError,
+                         "Could not identify image size")
     end
 
     it "does not generate from a blank filename" do
       file = ""
-      expect { @geo = Paperclip::Geometry.from_file(file) }.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError)
+      expect do
+        @geo = Paperclip::Geometry.from_file(file)
+      end.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError,
+                         "Cannot find the geometry of a file with a blank name")
     end
 
     it "does not generate from a nil file" do
       file = nil
-      expect { @geo = Paperclip::Geometry.from_file(file) }.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError)
+      expect do
+        @geo = Paperclip::Geometry.from_file(file)
+      end.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError,
+                         "Cannot find the geometry of a file with a blank name")
     end
 
     it "does not generate from a file with no path" do
       file = double("file", path: "")
       allow(file).to receive(:respond_to?).with(:path).and_return(true)
-      expect { @geo = Paperclip::Geometry.from_file(file) }.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError)
+      expect do
+        @geo = Paperclip::Geometry.from_file(file)
+      end.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError,
+                         "Cannot find the geometry of a file with a blank name")
     end
 
     it "lets us know when a command isn't found versus a processing error" do

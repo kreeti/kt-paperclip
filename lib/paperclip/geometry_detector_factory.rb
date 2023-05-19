@@ -7,7 +7,7 @@ module Paperclip
 
     def make
       geometry = GeometryParser.new(geometry_string.strip).make
-      geometry || raise(Errors::NotIdentifiedByImageMagickError.new)
+      geometry || raise(Errors::NotIdentifiedByImageMagickError.new("Could not identify image size"))
     end
 
     private

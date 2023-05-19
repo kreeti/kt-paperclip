@@ -35,4 +35,13 @@ describe Paperclip::GeometryDetector do
       Paperclip.options[:use_exif_orientation] = true
     end
   end
+
+  it "raises an exception with a message when the file is not an image" do
+    file = fixture_file("text.txt")
+    factory = Paperclip::GeometryDetector.new(file)
+
+    expect do
+      factory.make
+    end.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError, "Could not identify image size")
+  end
 end
