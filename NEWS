@@ -1,5 +1,6 @@
 [UNRELEASED]
-Issue file delete only once per unique style when nullifying attachment or destroying an object. Avoids triggering a rate limit error on Google Cloud Storage.
+* Improvement: Support file extension names both as symbols and strings for :content_type_mappings
+* Issue file delete only once per unique style when nullifying attachment or destroying an object. Avoids triggering a rate limit error on Google Cloud Storage.
 
 7.0.0 (2021-05-28)
 * Replace `mimemagic` gem with `marcel` due to licensing issues. See https://github.com/kreeti/kt-paperclip/pull/54 for details and limitations

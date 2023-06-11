@@ -32,12 +32,18 @@ describe Paperclip::MediaTypeSpoofDetector do
   end
 
   it "does not reject when the extension => content_type is in :content_type_mappings" do
+    file = Tempfile.open(["test", ".PEM"])
+    file.puts "Certificate!"
+    file.close
+
+    adapter = Paperclip.io_adapters.for(File.new(file.path))
+
     begin
       Paperclip.options[:content_type_mappings] = { pem: "text/plain" }
-      file = Tempfile.open(["test", ".PEM"])
-      file.puts "Certificate!"
-      file.close
-      adapter = Paperclip.io_adapters.for(File.new(file.path))
+      assert !Paperclip::MediaTypeSpoofDetector.using(adapter, adapter.original_filename, adapter.content_type).spoofed?
+
+      # As a string.
+      Paperclip.options[:content_type_mappings] = { "pem" => "text/plain" }
       assert !Paperclip::MediaTypeSpoofDetector.using(adapter, adapter.original_filename, adapter.content_type).spoofed?
     ensure
       Paperclip.options[:content_type_mappings] = {}

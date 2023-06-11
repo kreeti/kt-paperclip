@@ -82,7 +82,8 @@ module Paperclip
     end
 
     def mapped_content_type
-      Paperclip.options[:content_type_mappings][filename_extension]
+      content_type_mappings = Paperclip.options[:content_type_mappings]
+      content_type_mappings[filename_extension] || content_type_mappings[filename_extension.to_s]
     end
 
     def filename_extension
