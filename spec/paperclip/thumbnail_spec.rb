@@ -318,16 +318,16 @@ describe Paperclip::Thumbnail do
     end
   end
 
-  context "An animated gif" do
+  shared_context "An animated image" do
     before do
-      @file = File.new(fixture_file("animated.gif"), "rb")
+      @file = File.new(fixture_file(filename), "rb")
     end
 
     after { @file.close }
 
-    it "starts with 12 frames with size 100x100" do
-      cmd = %[identify -format "%wx%h" "#{@file.path}"]
-      assert_equal "100x100" * 12, `#{cmd}`.chomp
+    it "starts with 12 frames" do
+      cmd = %[identify -format "%wx%h" "#{prefix}#{@file.path}"]
+      assert_match /^(\d+x\d+){12}$/, `#{cmd}`.chomp
     end
 
     context "with static output" do
@@ -344,12 +344,13 @@ describe Paperclip::Thumbnail do
 
     context "with animated output format" do
       before do
-        @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", format: :gif)
+        @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", format: format)
       end
 
       it "creates the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
-        cmd = %[identify -format "%wx%h," "#{dst.path}"]
+        prefix = 'apng:' if File.extname(dst.path) == '.png'
+        cmd = %[identify -format "%wx%h," "#{prefix}#{dst.path}"]
         frames = `#{cmd}`.chomp.split(",")
         assert_equal 12, frames.size
         assert_frame_dimensions (45..50), frames
@@ -371,7 +372,7 @@ describe Paperclip::Thumbnail do
 
       it "creates the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
-        cmd = %[identify -format "%wx%h," "#{dst.path}"]
+        cmd = %[identify -format "%wx%h," "#{prefix}#{dst.path}"]
         frames = `#{cmd}`.chomp.split(",")
         assert_equal 12, frames.size
         assert_frame_dimensions (45..50), frames
@@ -388,16 +389,19 @@ describe Paperclip::Thumbnail do
 
     context "with unidentified source format" do
       before do
-        @unidentified_file = File.new(fixture_file("animated.unknown"), "rb")
-        @thumb = Paperclip::Thumbnail.new(@file, geometry: "60x60")
+        tempfile = Paperclip::TempfileFactory.new.generate('animated.unknown')
+        tempfile.write(@file.read)
+        tempfile.rewind
+
+        @thumb = Paperclip::Thumbnail.new(tempfile, geometry: "60x60")
       end
 
       it "creates the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
-        cmd = %[identify -format "%wx%h," "#{dst.path}"]
+        cmd = %[identify -format "%wx%h," "#{prefix}#{dst.path}"]
         frames = `#{cmd}`.chomp.split(",")
         assert_equal 12, frames.size
-        assert_frame_dimensions (55..60), frames
+        assert_frame_dimensions (53..60), frames
       end
 
       it "uses the -coalesce option" do
@@ -411,13 +415,17 @@ describe Paperclip::Thumbnail do
 
     context "with no source format" do
       before do
-        @unidentified_file = File.new(fixture_file("animated"), "rb")
-        @thumb = Paperclip::Thumbnail.new(@file, geometry: "70x70")
+        tempfile = Paperclip::TempfileFactory.new.generate('animated')
+        tempfile.write(@file.read)
+        tempfile.flush
+        tempfile.rewind
+
+        @thumb = Paperclip::Thumbnail.new(tempfile, geometry: "70x70")
       end
 
       it "creates the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
-        cmd = %[identify -format "%wx%h," "#{dst.path}"]
+        cmd = %[identify -format "%wx%h," "#{prefix}#{dst.path}"]
         frames = `#{cmd}`.chomp.split(",")
         assert_equal 12, frames.size
         assert_frame_dimensions (60..70), frames
@@ -437,15 +445,15 @@ describe Paperclip::Thumbnail do
         @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", animated: false)
       end
 
-      it "outputs the gif format" do
+      it "outputs the expected format" do
         dst = @thumb.make
         cmd = %[identify "#{dst.path}"]
-        assert_match /GIF/, `#{cmd}`.chomp
+        assert_match format.to_s, `#{cmd}`.downcase.chomp
       end
 
       it "creates the single frame thumbnail when sent #make" do
         dst = @thumb.make
-        cmd = %[identify -format "%wx%h" "#{dst.path}"]
+        cmd = %[identify -format "%wx%h" "#{prefix}#{dst.path}"]
         assert_equal "50x50", `#{cmd}`.chomp
       end
     end
@@ -484,6 +492,30 @@ describe Paperclip::Thumbnail do
         end
       end
     end
+  end
+
+  context "An animated gif" do
+    let(:filename) { "animated.gif" }
+    let(:format) { :gif }
+    let(:prefix) { '' }
+
+    include_examples 'An animated image'
+  end
+
+  context "An animated png" do
+    let(:filename) { "animated.png" }
+    let(:format) { :png }
+    let(:prefix) { 'apng:' }
+
+    include_examples 'An animated image'
+  end
+
+  context "An animated webp" do
+    let(:filename) { "animated.webp" }
+    let(:format) { :webp }
+    let(:prefix) { '' }
+
+    include_examples 'An animated image'
   end
 
   context "with a really long file name" do

@@ -5,8 +5,8 @@ module Paperclip
                   :source_file_options, :animated, :auto_orient, :frame_index
 
     # List of formats that we need to preserve animation
-    ANIMATED_FORMATS = %w(gif).freeze
-    MULTI_FRAME_FORMATS = %w(.mkv .avi .mp4 .mov .mpg .mpeg .gif).freeze
+    ANIMATED_FORMATS = %w(gif png webp).freeze
+    MULTI_FRAME_FORMATS = %w(.mkv .avi .mp4 .mov .mpg .mpeg .gif .png .webp).freeze
 
     # Creates a Thumbnail object set to work on the +file+ given. It
     # will attempt to transform the image into one defined by +target_geometry+
@@ -65,6 +65,12 @@ module Paperclip
       filename = [@basename, @format ? ".#{@format}" : ""].join
       dst = TempfileFactory.new.generate(filename)
 
+      if animated? && (@format == :png || !@format && identified_as_apng?)
+        # With ImageMagick < 7.0.11-13, using apng: prefix is not sufficient to output animated PNGs:
+        # https://github.com/ImageMagick/ImageMagick/issues/3468
+        temp_dst = TempfileFactory.new.generate("#{@basename}.apng")
+      end
+
       begin
         parameters = []
         parameters << source_file_options
@@ -75,12 +81,20 @@ module Paperclip
 
         parameters = parameters.flatten.compact.join(" ").strip.squeeze(" ")
 
-        frame = animated? ? "" : "[#{@frame_index}]"
+        source_prefix = 'apng:' if identified_as_apng?
+        frame = "[#{@frame_index}]" unless animated?
+
         convert(
           parameters,
-          source: "#{File.expand_path(src.path)}#{frame}",
-          dest: File.expand_path(dst.path)
+          source: "#{source_prefix}#{File.expand_path(src.path)}#{frame}",
+          dest: File.expand_path((temp_dst || dst).path)
         )
+
+        if temp_dst
+          IO.copy_stream(temp_dst.path, dst)
+          dst.rewind
+          temp_dst.unlink
+        end
       rescue Terrapin::ExitStatusError => e
         if @whiny
           message = "There was an error processing the thumbnail for #{@basename}:\n" + e.message
@@ -119,13 +133,25 @@ module Paperclip
     # Return true if ImageMagick's +identify+ returns an animated format
     def identified_as_animated?
       if @identified_as_animated.nil?
-        @identified_as_animated = ANIMATED_FORMATS.include? identify("-format %m :file", file: "#{@file.path}[0]").to_s.downcase.strip
+        @identified_as_animated = ANIMATED_FORMATS.include? identified_as
       end
       @identified_as_animated
     rescue Terrapin::ExitStatusError => e
       raise Paperclip::Error, "There was an error running `identify` for #{@basename}" if @whiny
     rescue Terrapin::CommandNotFoundError => e
       raise Paperclip::Errors::CommandNotFoundError.new("Could not run the `identify` command. Please install ImageMagick.")
+    end
+
+    def identified_as_apng?
+      if @identified_as_apng.nil?
+        @identified_as_apng = File.extname(@file.path) == '.png' || identified_as == 'png'
+        @identified_as_apng &&= identify("-format %m apng::file", file: @file.path).to_s.downcase.strip.match?(/\A(apng){2,}/)
+      end
+      @identified_as_apng
+    end
+
+    def identified_as
+      @identified_as ||= identify("-format %m :file", file: "#{@file.path}[0]").to_s.downcase.strip
     end
   end
 end
