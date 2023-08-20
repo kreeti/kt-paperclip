@@ -65,7 +65,7 @@ module Paperclip
       filename = [@basename, @format ? ".#{@format}" : ""].join
       dst = TempfileFactory.new.generate(filename)
 
-      if animated? && (@format == :png || !@format && identified_as_apng?)
+      if animated? && (@format.to_s == 'png' || !@format && identified_as_apng?)
         # With ImageMagick < 7.0.11-13, using apng: prefix is not sufficient to output animated PNGs:
         # https://github.com/ImageMagick/ImageMagick/issues/3468
         temp_dst = TempfileFactory.new.generate("#{@basename}.apng")
