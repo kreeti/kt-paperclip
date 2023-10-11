@@ -11,7 +11,7 @@ module Paperclip
     def self.included(_base)
       ActiveRecord::ConnectionAdapters::Table.include TableDefinition
       ActiveRecord::ConnectionAdapters::TableDefinition.include TableDefinition
-      ActiveRecord::ConnectionAdapters::AbstractAdapter.include Statements
+      ActiveRecord::Migration.include Statements
       ActiveRecord::Migration::CommandRecorder.include CommandRecorder
     end
 
