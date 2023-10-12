@@ -28,15 +28,15 @@ module ModelReconstruction
 
   def reset_table(_table_name, &block)
     block ||= lambda { |_table| true }
-    ActiveRecord::Base.connection.create_table :dummies, **{ force: true }, &block
+    ActiveRecord::Migration.create_table :dummies, **{ force: true }, &block
   end
 
   def modify_table(&block)
-    ActiveRecord::Base.connection.change_table :dummies, &block
+    ActiveRecord::Migration.change_table :dummies, &block
   end
 
   def rebuild_model(options = {})
-    ActiveRecord::Base.connection.create_table :dummies, force: true do |table|
+    ActiveRecord::Migration.create_table :dummies, force: true do |table|
       table.column :title, :string
       table.column :other, :string
       table.column :avatar_file_name, :string

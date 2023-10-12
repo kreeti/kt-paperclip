@@ -1333,7 +1333,7 @@ describe Paperclip::Attachment do
 
   context "An attachment with only a avatar_file_name column" do
     before do
-      ActiveRecord::Base.connection.create_table :dummies, force: true do |table|
+      ActiveRecord::Migration.create_table :dummies, force: true do |table|
         table.column :avatar_file_name, :string
       end
       rebuild_class
@@ -1359,7 +1359,7 @@ describe Paperclip::Attachment do
 
     context "and avatar_created_at column" do
       before do
-        ActiveRecord::Base.connection.add_column :dummies, :avatar_created_at, :timestamp
+        ActiveRecord::Migration.add_column :dummies, :avatar_created_at, :timestamp
         rebuild_class
         @dummy = Dummy.new
       end
@@ -1396,7 +1396,7 @@ describe Paperclip::Attachment do
 
     context "and avatar_updated_at column" do
       before do
-        ActiveRecord::Base.connection.add_column :dummies, :avatar_updated_at, :timestamp
+        ActiveRecord::Migration.add_column :dummies, :avatar_updated_at, :timestamp
         rebuild_class
         @dummy = Dummy.new
       end
@@ -1426,7 +1426,7 @@ describe Paperclip::Attachment do
 
     context "and avatar_content_type column" do
       before do
-        ActiveRecord::Base.connection.add_column :dummies, :avatar_content_type, :string
+        ActiveRecord::Migration.add_column :dummies, :avatar_content_type, :string
         rebuild_class
         @dummy = Dummy.new
       end
@@ -1443,7 +1443,7 @@ describe Paperclip::Attachment do
 
     context "and avatar_file_size column" do
       before do
-        ActiveRecord::Base.connection.add_column :dummies, :avatar_file_size, :bigint
+        ActiveRecord::Migration.add_column :dummies, :avatar_file_size, :bigint
         rebuild_class
         @dummy = Dummy.new
       end
@@ -1467,7 +1467,7 @@ describe Paperclip::Attachment do
 
     context "and avatar_fingerprint column" do
       before do
-        ActiveRecord::Base.connection.add_column :dummies, :avatar_fingerprint, :string
+        ActiveRecord::Migration.add_column :dummies, :avatar_fingerprint, :string
         rebuild_class
         @dummy = Dummy.new
       end

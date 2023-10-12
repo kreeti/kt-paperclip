@@ -11,7 +11,7 @@ describe Paperclip::Schema do
 
   after do
     begin
-      Dummy.connection.drop_table :dummies
+      ActiveRecord::Migration.drop_table :dummies
     rescue StandardError
       nil
     end
@@ -23,7 +23,7 @@ describe Paperclip::Schema do
         ActiveSupport::Deprecation.silenced = false
       end
       it "creates attachment columns" do
-        Dummy.connection.create_table :dummies, force: true do |t|
+        ActiveRecord::Migration.create_table :dummies, force: true do |t|
           ActiveSupport::Deprecation.silence do
             t.has_attached_file :avatar
           end
@@ -38,7 +38,7 @@ describe Paperclip::Schema do
       end
 
       it "displays deprecation warning" do
-        Dummy.connection.create_table :dummies, force: true do |t|
+        ActiveRecord::Migration.create_table :dummies, force: true do |t|
           assert_deprecated do
             t.has_attached_file :avatar
           end
@@ -48,7 +48,7 @@ describe Paperclip::Schema do
 
     context "using #attachment" do
       before do
-        Dummy.connection.create_table :dummies, force: true do |t|
+        ActiveRecord::Migration.create_table :dummies, force: true do |t|
           t.attachment :avatar
         end
       end
@@ -65,7 +65,7 @@ describe Paperclip::Schema do
 
     context "using #attachment with options" do
       before do
-        Dummy.connection.create_table :dummies, force: true do |t|
+        ActiveRecord::Migration.create_table :dummies, force: true do |t|
           t.attachment :avatar, default: 1, file_name: { default: "default" }
         end
       end
@@ -83,13 +83,13 @@ describe Paperclip::Schema do
 
   context "within schema statement" do
     before do
-      Dummy.connection.create_table :dummies, force: true
+      ActiveRecord::Migration.create_table :dummies, force: true
     end
 
     context "migrating up" do
       context "with single attachment" do
         before do
-          Dummy.connection.add_attachment :dummies, :avatar
+          ActiveRecord::Migration.add_attachment :dummies, :avatar
         end
 
         it "creates attachment columns" do
@@ -104,7 +104,7 @@ describe Paperclip::Schema do
 
       context "with single attachment and options" do
         before do
-          Dummy.connection.add_attachment :dummies, :avatar, default: "1", file_name: { default: "default" }
+          ActiveRecord::Migration.add_attachment :dummies, :avatar, default: "1", file_name: { default: "default" }
         end
 
         it "sets defaults on columns" do
@@ -119,7 +119,7 @@ describe Paperclip::Schema do
 
       context "with multiple attachments" do
         before do
-          Dummy.connection.add_attachment :dummies, :avatar, :photo
+          ActiveRecord::Migration.add_attachment :dummies, :avatar, :photo
         end
 
         it "creates attachment columns" do
@@ -138,7 +138,7 @@ describe Paperclip::Schema do
 
       context "with multiple attachments and options" do
         before do
-          Dummy.connection.add_attachment :dummies, :avatar, :photo, default: "1", file_name: { default: "default" }
+          ActiveRecord::Migration.add_attachment :dummies, :avatar, :photo, default: "1", file_name: { default: "default" }
         end
 
         it "sets defaults on columns" do
@@ -157,7 +157,7 @@ describe Paperclip::Schema do
       context "with no attachment" do
         it "raises an error" do
           assert_raises ArgumentError do
-            Dummy.connection.add_attachment :dummies
+            ActiveRecord::Migration.add_attachment :dummies
           end
         end
       end
@@ -165,7 +165,7 @@ describe Paperclip::Schema do
 
     context "migrating down" do
       before do
-        Dummy.connection.change_table :dummies do |t|
+        ActiveRecord::Migration.change_table :dummies do |t|
           t.column :avatar_file_name, :string
           t.column :avatar_content_type, :string
           t.column :avatar_file_size, :bigint
@@ -179,7 +179,7 @@ describe Paperclip::Schema do
         end
         it "removes the attachment columns" do
           ActiveSupport::Deprecation.silence do
-            Dummy.connection.drop_attached_file :dummies, :avatar
+            ActiveRecord::Migration.drop_attached_file :dummies, :avatar
           end
 
           columns = Dummy.columns.map { |column| [column.name, column.sql_type] }
@@ -192,7 +192,7 @@ describe Paperclip::Schema do
 
         it "displays a deprecation warning" do
           assert_deprecated do
-            Dummy.connection.drop_attached_file :dummies, :avatar
+            ActiveRecord::Migration.drop_attached_file :dummies, :avatar
           end
         end
       end
@@ -200,7 +200,7 @@ describe Paperclip::Schema do
       context "using #remove_attachment" do
         context "with single attachment" do
           before do
-            Dummy.connection.remove_attachment :dummies, :avatar
+            ActiveRecord::Migration.remove_attachment :dummies, :avatar
           end
 
           it "removes the attachment columns" do
@@ -215,14 +215,14 @@ describe Paperclip::Schema do
 
         context "with multiple attachments" do
           before do
-            Dummy.connection.change_table :dummies do |t|
+            ActiveRecord::Migration.change_table :dummies do |t|
               t.column :photo_file_name, :string
               t.column :photo_content_type, :string
               t.column :photo_file_size, :bigint
               t.column :photo_updated_at, :datetime
             end
 
-            Dummy.connection.remove_attachment :dummies, :avatar, :photo
+            ActiveRecord::Migration.remove_attachment :dummies, :avatar, :photo
           end
 
           it "removes the attachment columns" do
@@ -242,7 +242,7 @@ describe Paperclip::Schema do
         context "with no attachment" do
           it "raises an error" do
             assert_raises ArgumentError do
-              Dummy.connection.remove_attachment :dummies
+              ActiveRecord::Migration.remove_attachment :dummies
             end
           end
         end
