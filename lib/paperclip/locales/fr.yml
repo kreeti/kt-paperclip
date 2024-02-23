@@ -1,0 +1,18 @@
+fr:
+  errors:
+    messages:
+      in_between: "doit être entre %{min} et %{max}"
+      spoofed_media_type: "à du contenu qui ne correspond pas au type déclaré"
+
+  number:
+    human:
+      storage_units:
+        format: "%n %u"
+        units:
+          byte:
+            one:   "Octet"
+            other: "Octets"
+          kb: "ko"
+          mb: "Mo"
+          gb: "Go"
+          tb: "To"
