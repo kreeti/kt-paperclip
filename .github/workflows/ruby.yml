@@ -1,0 +1,75 @@
+name: Ruby CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        ruby: [2.3, 2.4, 2.5, 2.6, 2.7]
+        gemfile:
+          - gemfiles/4.2.gemfile
+          - gemfiles/5.0.gemfile
+          - gemfiles/5.1.gemfile
+          - gemfiles/5.2.gemfile
+          - gemfiles/6.0.gemfile
+          - gemfiles/6.1.gemfile
+        exclude:
+          - ruby: 2.3
+            gemfile: gemfiles/6.0.gemfile
+          - ruby: 2.4
+            gemfile: gemfiles/6.0.gemfile
+          - ruby: 2.3
+            gemfile: gemfiles/6.1.gemfile
+          - ruby: 2.4
+            gemfile: gemfiles/6.1.gemfile
+          - ruby: 2.7
+            gemfile: gemfiles/4.2.gemfile
+          - ruby: 2.7
+            gemfile: gemfiles/5.0.gemfile
+          - ruby: 2.7
+            gemfile: gemfiles/5.1.gemfile
+
+    services:
+      postgres:
+        image: postgres:alpine
+        env:
+          POSTGRES_DB: myapp_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres is actually available
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+
+    - name: Update apt packages
+      run: sudo apt-get update
+
+    - name: Install dependencies
+      run: sudo apt-get install -y ghostscript
+
+    - name: Remove ImageMagick policy
+      run: sudo rm /etc/ImageMagick-6/policy.xml || true
+
+    - name: Install Gems
+      run: |
+        gem install bundler
+        BUNDLE_GEMFILE=${{ matrix.gemfile }} bundle install
+
+    - name: Run tests
+      run: BUNDLE_GEMFILE=${{ matrix.gemfile }} bundle exec rake clean spec cucumber
