@@ -187,7 +187,10 @@ module Paperclip
 
       def expiring_url(time = 3600, style_name = default_style)
         if path(style_name)
-          base_options = { expires_in: time }
+          base_options = {
+            expires_in: time,
+            virtual_host:  @options[:url] == ":s3_alias_url" && @options[:s3_host_alias] != nil
+          }
           s3_object(style_name).presigned_url(
             :get,
             base_options.merge(s3_url_options)
