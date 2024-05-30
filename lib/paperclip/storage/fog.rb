@@ -214,9 +214,17 @@ module Paperclip
       def find_credentials(creds)
         case creds
         when File
-          YAML::safe_load(ERB.new(File.read(creds.path)).result)
+          if Gem::Version.new(Psych::VERSION) >= Gem::Version.new("3.1.0")
+            YAML::safe_load(ERB.new(File.read(creds.path)).result, aliases: true)
+          else
+            YAML::safe_load(ERB.new(File.read(creds.path)).result)
+          end
         when String, Pathname
-          YAML::safe_load(ERB.new(File.read(creds)).result)
+          if Gem::Version.new(Psych::VERSION) >= Gem::Version.new("3.1.0")
+            YAML::safe_load(ERB.new(File.read(creds)).result, aliases: true)
+          else
+            YAML::safe_load(ERB.new(File.read(creds)).result)
+          end
         when Hash
           creds
         else
