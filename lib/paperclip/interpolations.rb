@@ -30,6 +30,7 @@ module Paperclip
     # You can pass a method name on your record as a symbol, which should turn
     # an interpolation pattern for Paperclip to use.
     def self.interpolate(pattern, *args)
+      return if pattern.nil?
       pattern = args.first.instance.send(pattern) if pattern.is_a? Symbol
       result = pattern.dup
       interpolators_cache.each do |method, token|
