@@ -1,3 +1,4 @@
+# coding: utf-8
 module Paperclip
   module Storage
     # Amazon's S3 file hosting service is a scalable, easy place to store files for
@@ -433,17 +434,9 @@ module Paperclip
       def find_credentials(creds)
         case creds
         when File
-          if Gem::Version.new(Psych::VERSION) >= Gem::Version.new("3.1.0")
-            YAML::safe_load(ERB.new(File.read(creds.path)).result, aliases: true)
-          else
-            YAML::safe_load(ERB.new(File.read(creds.path)).result)
-          end
+           load_credentials_from_file(creds.path)
         when String, Pathname
-          if Gem::Version.new(Psych::VERSION) >= Gem::Version.new("3.1.0")
-            YAML::safe_load(ERB.new(File.read(creds)).result, aliases: true)
-          else
-            YAML::safe_load(ERB.new(File.read(creds)).result)
-          end
+          load_credentials_from_file(creds)
         when Hash
           creds
         when NilClass
