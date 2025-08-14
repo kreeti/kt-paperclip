@@ -6,6 +6,33 @@ describe Paperclip::AttachmentAdapter do
     @attachment = Dummy.new.avatar
   end
 
+  context "for an attachment that renames the source to the destination" do
+    before do
+      @file = File.new(fixture_file("5k.png"))
+      @file.binmode
+
+      @attachment.assign(@file)
+      @attachment.save
+
+      allow(@attachment).to receive(:copy_to_local_file) do |style, path|
+        FileUtils.cp(@file.path, "#{@file.path}.tmp")
+        FileUtils.mv("#{@file.path}.tmp", path)
+      end
+
+      @subject = Paperclip.io_adapters.for(@attachment,
+                                           hash_digest: Digest::MD5)
+    end
+
+    after do
+      @file.close
+      @subject.close
+    end
+
+    it "handles the case where the source is renamed to the destination" do
+      assert_equal @file.read, @subject.read
+    end
+  end
+
   context "for an attachment" do
     before do
       @file = File.new(fixture_file("5k.png"))
