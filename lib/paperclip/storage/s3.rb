@@ -124,6 +124,7 @@ module Paperclip
     module S3
       def self.extended(base)
         begin
+          gem "aws-sdk-s3", ">= 1.197.0"
           require "aws-sdk-s3"
         rescue LoadError => e
           e.message << " (You may need to install the aws-sdk-s3 gem)"
@@ -281,6 +282,10 @@ module Paperclip
         s3_bucket.object style_name_as_path(style_name)
       end
 
+      def s3_transfer_manager
+        @s3_transfer_manager ||= ::Aws::S3::TransferManager.new
+      end
+
       def use_accelerate_endpoint?
         !!@use_accelerate_endpoint
       end
@@ -387,7 +392,8 @@ module Paperclip
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
             write_options.merge!(@s3_headers)
 
-            s3_object(style).upload_file(file.path, write_options)
+            destination = style_name_as_path(style)
+            s3_transfer_manager.upload_file(file.path, **write_options, bucket: bucket_name, key: destination)
           rescue ::Aws::S3::Errors::NoSuchBucket
             create_bucket
             retry
@@ -423,7 +429,9 @@ module Paperclip
 
       def copy_to_local_file(style, local_dest_path)
         log("copying #{path(style)} to local file #{local_dest_path}")
-        s3_object(style).download_file(local_dest_path)
+
+        source = style_name_as_path(style)
+        s3_transfer_manager.download_file(local_dest_path, bucket: bucket_name, key: source)
       rescue Aws::Errors::ServiceError => e
         warn("#{e} - cannot copy #{path(style)} to local file #{local_dest_path}")
         false
