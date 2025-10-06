@@ -17,7 +17,7 @@ module Paperclip
       @fingerprint ||= begin
         digest = @options.fetch(:hash_digest).new
         File.open(path, "rb") do |f|
-          buf = ""
+          buf = String.new
           digest.update(buf) while f.read(16384, buf)
         end
         digest.hexdigest
