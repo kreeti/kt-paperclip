@@ -1,5 +1,8 @@
 [UNRELEASED]
 
+* Bugfix: Fix the use of deprecated methods from `aws-sdk-s3`
+* Stability: Dropped support for `aws-sdk-s3` < 1.197.0
+
 7.2.1 (2023-09-09)
 * Improvement: Support file extension names both as symbols and strings for :content_type_mappings
 
