@@ -345,7 +345,7 @@ You can also define multiple validations on a single attachment using `validates
 
 ```ruby
 validates_attachment :avatar, presence: true,
-  content_type: "image/jpeg",
+  content_type: { content_type: "image/jpeg" },
   size: { in: 0..10.kilobytes }
 ```
 
@@ -372,7 +372,7 @@ afterwards, then assign manually:
 ```ruby
 class Book < ActiveRecord::Base
   has_attached_file :document, styles: { thumbnail: "60x60#" }
-  validates_attachment :document, content_type: "application/pdf"
+  validates_attachment :document, content_type: { content_type: "application/pdf" }
   validates_something_else # Other validations that conflict with Paperclip's
 end
 
@@ -404,7 +404,7 @@ image-y ones:
 
 ```ruby
 validates_attachment :avatar,
-  content_type: ["image/jpeg", "image/gif", "image/png"]
+  content_type: { content_type: ["image/jpeg", "image/gif", "image/png"] }
 ```
 
 `Paperclip::ContentTypeDetector` will attempt to match a file's extension to an
