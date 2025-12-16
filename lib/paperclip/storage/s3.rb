@@ -284,7 +284,7 @@ module Paperclip
       def s3_transfer_manager
         @s3_transfer_manager ||= begin
           if ::Aws::S3.const_defined?(:TransferManager, false)
-            ::Aws::S3::TransferManager.new
+            ::Aws::S3::TransferManager.new(client: s3_interface.client)
           else
             nil
           end
