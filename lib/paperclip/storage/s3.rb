@@ -277,6 +277,16 @@ module Paperclip
         s3_bucket.object style_name_as_path(style_name)
       end
 
+      def s3_transfer_manager
+        @s3_transfer_manager ||= begin
+          if ::Aws::S3.const_defined?(:TransferManager, false)
+            ::Aws::S3::TransferManager.new(client: s3_interface.client)
+          else
+            nil
+          end
+        end
+      end
+
       def use_accelerate_endpoint?
         !!@use_accelerate_endpoint
       end
@@ -380,7 +390,12 @@ module Paperclip
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
             write_options.merge!(@s3_headers)
 
-            s3_object(style).upload_file(file.path, write_options)
+            if s3_transfer_manager
+              destination = style_name_as_path(style)
+              s3_transfer_manager.upload_file(file.path, **write_options, bucket: bucket_name, key: destination)
+            else
+              s3_object(style).upload_file(file.path, write_options)
+            end
           rescue ::Aws::S3::Errors::NoSuchBucket
             create_bucket
             retry
@@ -416,7 +431,13 @@ module Paperclip
 
       def copy_to_local_file(style, local_dest_path)
         log("copying #{path(style)} to local file #{local_dest_path}")
-        s3_object(style).download_file(local_dest_path)
+        
+        if s3_transfer_manager
+          source = style_name_as_path(style)
+          s3_transfer_manager.download_file(local_dest_path, bucket: bucket_name, key: source)
+        else
+          s3_object(style).download_file(local_dest_path)
+        end
       rescue Aws::Errors::ServiceError => e
         warn("#{e} - cannot copy #{path(style)} to local file #{local_dest_path}")
         false
