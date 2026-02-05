@@ -278,6 +278,21 @@ describe Paperclip::Attachment do
       end
     end
 
+    context 'without an Attachment and default_url nil' do
+      before do
+        rebuild_model default_url: nil
+        @dummy = Dummy.new
+      end
+
+      it 'returns false when asked exists?' do
+        assert !@dummy.avatar.exists?
+      end
+
+      it '#url returns the default_url' do
+        expect(@dummy.avatar.url).to eq nil
+      end
+    end
+
     context "on an Attachment" do
       before do
         @dummy = Dummy.new
