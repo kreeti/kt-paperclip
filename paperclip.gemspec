@@ -12,9 +12,7 @@ Gem::Specification.new do |s|
   s.description       = "Easy upload management for ActiveRecord"
   s.license           = "MIT"
 
-  s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- {spec,features}/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
+  s.files         = `git ls-files lib shoulda_macros`.split($/) + ["LICENSE", "README.md", "UPGRADING"]
   s.require_paths = ["lib"]
 
   s.post_install_message = File.read("UPGRADING") if File.exist?("UPGRADING")
