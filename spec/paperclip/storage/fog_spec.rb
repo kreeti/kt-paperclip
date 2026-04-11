@@ -252,7 +252,7 @@ describe Paperclip::Storage::Fog do
 
         it "sucessfully rewinds the file during bucket creation" do
           assert @dummy.save
-          expect(Paperclip.io_adapters.for(@dummy.avatar).read.length).to be > 0
+          expect(Paperclip.io_adapters.for(@dummy.avatar).read.length).to be > 0 # rubocop:disable Style/NumericPredicate
         end
       end
 

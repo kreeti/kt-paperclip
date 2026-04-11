@@ -5,6 +5,7 @@
 * Fix issues with Rails deprecation in tests.
 * Remove appraisal gem, use RAILS_VERSION env var in main Gemfile instead.
 * Move gemspec development dependencies to Gemfile, per latest standards.
+* Recreate .rubocop.yml and .rubocop_todo.yml.
 * Change "NEWS" and "OLD_NEWS" files to "CHANGELOG.md".
 * Remove UPGRADING message.
 * Remove cruft files: .travis.yml, .codeclimate.yml, .hound.yml

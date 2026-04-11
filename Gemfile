@@ -29,6 +29,7 @@ group :development, :test do
   gem "rake"
   gem "rspec"
   gem "rubocop", require: false
+  gem "rubocop-performance", require: false
   gem "rubocop-rails", require: false
   gem "shoulda"
   gem "timecop" unless RUBY_ENGINE == "jruby" # timecop's Time.new patch is broken on JRuby 10

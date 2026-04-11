@@ -54,9 +54,7 @@ module Paperclip
       def download_content
         options = { read_timeout: Paperclip.options[:read_timeout] }.compact
 
-        # rubocop:disable Security/Open
         open(@target, options)
-        # rubocop:enable Security/Open
       end
     else
       def download_content
