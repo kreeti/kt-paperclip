@@ -362,6 +362,7 @@ Metrics/AbcSize:
 Metrics/BlockLength:
   Exclude:
     - "spec/**/*"
+    - "**/*.rake"
 Metrics/BlockNesting:
   Description: Avoid excessive block nesting
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#three-is-the-number-thou-shalt-count

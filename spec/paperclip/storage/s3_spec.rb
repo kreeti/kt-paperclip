@@ -1042,9 +1042,13 @@ describe Paperclip::Storage::S3 do
 
       context "and remove" do
         before do
+          allow_any_instance_of(Aws::S3::Object).to receive(:upload_file).and_return(true)
           allow_any_instance_of(Aws::S3::Object).to receive(:exists?).and_return(true)
           allow_any_instance_of(Aws::S3::Object).to receive(:delete)
-          @dummy.destroy
+          dummy = Dummy.create!
+          dummy.avatar = @file
+          dummy.save!
+          dummy.destroy
         end
 
         it "succeeds" do
@@ -1054,10 +1058,14 @@ describe Paperclip::Storage::S3 do
 
       context "and remove, calling S3 Object destroy once per unique style" do
         before do
+          allow_any_instance_of(Aws::S3::Object).to receive(:upload_file).and_return(true)
           allow_any_instance_of(Aws::S3::Object).to receive(:exists?).and_return(true)
           expect_any_instance_of(Aws::S3::Object).to receive(:delete).once
-          @dummy.avatar.clear(:original)
-          @dummy.destroy
+          dummy = Dummy.create!
+          dummy.avatar = @file
+          dummy.save!
+          dummy.avatar.clear(:original)
+          dummy.destroy
         end
 
         it "succeeds" do

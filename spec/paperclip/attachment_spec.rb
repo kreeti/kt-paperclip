@@ -1197,8 +1197,7 @@ describe Paperclip::Attachment do
             medium: ["100x100", :gif],
             small: ["32x32#", :jpg]
           }
-          @instance = Dummy.new
-          allow(@instance).to receive(:id).and_return 123
+          @instance = Dummy.create!
           @file = File.new(fixture_file("5k.png"), "rb")
           @attachment = @instance.avatar
         end

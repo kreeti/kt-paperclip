@@ -4,8 +4,10 @@
 .bundle
 tmp
 .DS_Store
+.idea
 
 *.log
+*.tmp
 
 public
 paperclip*.gem

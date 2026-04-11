@@ -1,5 +1,4 @@
 require "bundler/gem_tasks"
-require "appraisal"
 require "rspec/core/rake_task"
 require "cucumber/rake/task"
 
@@ -7,15 +6,8 @@ desc "Default: run unit tests."
 task default: [:clean, :all]
 
 desc "Test the paperclip plugin under all supported Rails versions."
-task :all do |_t|
-  if ENV["BUNDLE_GEMFILE"]
-    exec("rake spec && cucumber")
-  else
-    exec("rm -f gemfiles/*.lock")
-    Rake::Task["appraisal:gemfiles"].execute
-    Rake::Task["appraisal:install"].execute
-    exec("rake appraisal")
-  end
+task all: :environment do |_t|
+  exec("rake spec && cucumber")
 end
 
 desc "Test the paperclip plugin."
@@ -27,13 +19,13 @@ Cucumber::Rake::Task.new do |t|
 end
 
 desc "Start an IRB session with all necessary files required."
-task :shell do |_t|
+task shell: :environment do |_t|
   chdir File.dirname(__FILE__)
   exec "irb -I lib/ -I lib/paperclip -r rubygems -r active_record -r tempfile -r init"
 end
 
 desc "Clean up files."
-task :clean do |_t|
+task clean: :environment do |_t|
   FileUtils.rm_rf "doc"
   FileUtils.rm_rf "tmp"
   FileUtils.rm_rf "pkg"

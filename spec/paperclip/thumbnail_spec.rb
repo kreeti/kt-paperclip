@@ -178,12 +178,13 @@ describe Paperclip::Thumbnail do
         end
 
         it "errors when trying to create the thumbnail" do
+          error_args = [Paperclip::Error]
+          error_args << /unrecognized option `-this-aint-no-option'/ unless RUBY_ENGINE == "jruby"
+
           silence_stream(STDERR) do
             expect do
               @thumb.make
-            end.to raise_error(
-              Paperclip::Error, /unrecognized option `-this-aint-no-option'/
-            )
+            end.to raise_error(*error_args)
           end
         end
 

@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request: ~
+
+jobs:
+  rubocop:
+    runs-on: ubuntu-latest
+    name: RuboCop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby-4.0
+          bundler-cache: true
+      - name: Run RuboCop
+        run: bundle exec rubocop
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { ruby: ruby-2.7,       rails: '5.2', imagemagick: '7' }
+          - { ruby: ruby-3.0,       rails: '6.1', imagemagick: '6' }
+          - { ruby: ruby-3.1,       rails: '7.0', imagemagick: '7' }
+          - { ruby: ruby-3.2,       rails: '7.1', imagemagick: '6' }
+          - { ruby: ruby-3.3,       rails: '7.2', imagemagick: '7' }
+          - { ruby: ruby-3.4,       rails: '8.0', imagemagick: '6' }
+          - { ruby: ruby-4.0,       rails: '8.1', imagemagick: '7' }
+          - { ruby: jruby-10.0,     rails: '7.2', imagemagick: '7' }
+          - { ruby: truffleruby-24, rails: '8.1', imagemagick: '7' }
+
+    name: ${{matrix.ruby}} rails-${{matrix.rails}} im-${{matrix.imagemagick}}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ImageMagick 6
+        if: matrix.imagemagick == '6'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick libmagickwand-dev ghostscript
+          sudo rm -f /etc/ImageMagick-6/policy.xml
+          convert -version
+
+      - name: Cache ImageMagick 7
+        if: matrix.imagemagick == '7'
+        id: cache-im7
+        uses: actions/cache@v4
+        with:
+          path: |
+            /usr/local/lib/libMagick*
+            /usr/local/bin/magick
+            /usr/local/include/ImageMagick-7
+            /usr/local/lib/ImageMagick-*
+            /usr/local/etc/ImageMagick-7
+            /usr/local/share/ImageMagick-7
+          key: imagemagick7-${{ runner.os }}
+
+      - name: Install ImageMagick 7 dependencies
+        if: matrix.imagemagick == '7'
+        run: |
+          sudo apt-get update
+          sudo apt-get remove -y imagemagick imagemagick-6-common || true
+          sudo apt-get install -y build-essential pkg-config ghostscript \
+            libjpeg-dev libpng-dev libtiff-dev libwebp-dev \
+            libfreetype6-dev libfontconfig1-dev libxml2-dev \
+            libltdl-dev
+
+      - name: Build ImageMagick 7
+        if: matrix.imagemagick == '7' && steps.cache-im7.outputs.cache-hit != 'true'
+        run: |
+          cd /tmp
+          wget -q https://imagemagick.org/archive/ImageMagick.tar.gz
+          tar xzf ImageMagick.tar.gz
+          cd ImageMagick-*
+          ./configure --with-modules --enable-shared --quiet
+          make -j$(nproc) --quiet
+          sudo make install --quiet
+
+      - name: Configure ImageMagick 7
+        if: matrix.imagemagick == '7'
+        run: |
+          sudo ldconfig
+          magick -version
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+        env:
+          RAILS_VERSION: ${{ matrix.rails }}
+
+      - name: Run specs
+        run: bundle exec rspec
+        env:
+          RAILS_VERSION: ${{ matrix.rails }}

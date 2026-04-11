@@ -1,7 +1,7 @@
 require "spec_helper"
 require "fog/aws"
 require "fog/local"
-require "timecop"
+require "timecop" unless RUBY_ENGINE == "jruby" # timecop's Time.new patch is broken on JRuby 10
 
 describe Paperclip::Storage::Fog do
   context "" do
@@ -428,7 +428,7 @@ describe Paperclip::Storage::Fog do
       end
 
       context "generating an expiring url" do
-        it "generates the same url when using Times and Integer offsets" do
+        it "generates the same url when using Times and Integer offsets", skip: RUBY_ENGINE == "jruby" && "timecop incompatible with JRuby" do
           Timecop.freeze do
             offset = 1234
             rebuild_model(@options)

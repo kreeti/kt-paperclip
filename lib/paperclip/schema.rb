@@ -25,7 +25,7 @@ module Paperclip
 
         attachment_names.each do |attachment_name|
           COLUMNS.each_pair do |column_name, column_type|
-            column_options = options.merge(options[column_name.to_sym] || {})
+            column_options = options.merge(options[column_name.to_sym] || {}).except(*COLUMNS.keys)
             add_column(table_name, "#{attachment_name}_#{column_name}", column_type, **column_options)
           end
         end
@@ -44,7 +44,7 @@ module Paperclip
       end
 
       def drop_attached_file(*args)
-        ActiveSupport::Deprecation.warn "Method `drop_attached_file` in the migration has been deprecated and will be replaced by `remove_attachment`."
+        Paperclip.deprecator.warn "Method `drop_attached_file` in the migration has been deprecated and will be replaced by `remove_attachment`."
         remove_attachment(*args)
       end
     end
@@ -54,14 +54,14 @@ module Paperclip
         options = attachment_names.extract_options!
         attachment_names.each do |attachment_name|
           COLUMNS.each_pair do |column_name, column_type|
-            column_options = options.merge(options[column_name.to_sym] || {})
+            column_options = options.merge(options[column_name.to_sym] || {}).except(*COLUMNS.keys)
             column("#{attachment_name}_#{column_name}", column_type, **column_options)
           end
         end
       end
 
       def has_attached_file(*attachment_names)
-        ActiveSupport::Deprecation.warn "Method `t.has_attached_file` in the migration has been deprecated and will be replaced by `t.attachment`."
+        Paperclip.deprecator.warn "Method `t.has_attached_file` in the migration has been deprecated and will be replaced by `t.attachment`."
         attachment(*attachment_names)
       end
     end

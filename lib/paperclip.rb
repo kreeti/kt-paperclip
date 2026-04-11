@@ -77,6 +77,10 @@ module Paperclip
   extend Logger
   extend ProcessorHelpers
 
+  def self.deprecator
+    @deprecator ||= ActiveSupport::Deprecation.new(nil, "Paperclip")
+  end
+
   # Provides configurability to Paperclip. The options available are:
   # * whiny: Will raise an error if Paperclip cannot process thumbnails of
   #   an uploaded image. Defaults to true.

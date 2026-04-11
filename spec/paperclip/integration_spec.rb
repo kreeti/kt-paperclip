@@ -2,19 +2,21 @@ require "spec_helper"
 require "open-uri"
 
 describe "Paperclip" do
-  around do |example|
-    files_before = ObjectSpace.each_object(Tempfile).select do |file|
-      file.path && File.file?(file.path)
+  unless RUBY_ENGINE == "jruby"
+    around do |example|
+      files_before = ObjectSpace.each_object(Tempfile).select do |file|
+        file.path && File.file?(file.path)
+      end
+
+      example.run
+
+      files_after = ObjectSpace.each_object(Tempfile).select do |file|
+        file.path && File.file?(file.path)
+      end
+
+      diff = files_after - files_before
+      expect(diff).to eq([]), "Leaked tempfiles: #{diff.inspect}"
     end
-
-    example.run
-
-    files_after = ObjectSpace.each_object(Tempfile).select do |file|
-      file.path && File.file?(file.path)
-    end
-
-    diff = files_after - files_before
-    expect(diff).to eq([]), "Leaked tempfiles: #{diff.inspect}"
   end
 
   context "Many models at once" do
@@ -90,7 +92,7 @@ describe "Paperclip" do
         assert_match(/\b50x50\b/, `identify "#{@dummy.avatar.path(:dynamic)}"`)
       end
 
-      it "changes the timestamp" do
+      it "changes the timestamp", skip: RUBY_ENGINE == "truffleruby" && "TruffleRuby timer precision" do
         assert_not_equal @original_timestamp, @d2.avatar_updated_at
       end
     end
