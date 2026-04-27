@@ -96,8 +96,7 @@ describe Rake do
   context "Paperclip::Task.log_error method" do
     it "prints its argument to STDERR" do
       msg = "Some Message"
-      expect($stderr).to receive(:puts).with(msg)
-      Paperclip::Task.log_error(msg)
+      expect { Paperclip::Task.log_error(msg) }.to output("#{msg}\n").to_stderr
     end
   end
 end

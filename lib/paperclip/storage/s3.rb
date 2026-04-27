@@ -1,4 +1,3 @@
-# coding: utf-8
 module Paperclip
   module Storage
     # Amazon's S3 file hosting service is a scalable, easy place to store files for

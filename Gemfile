@@ -2,18 +2,35 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "pry"
+rails_version = "~> #{ENV['RAILS_VERSION']}.0" if ENV["RAILS_VERSION"]
+gem "rails", rails_version
 
-# Hinting at development dependencies
-# Prevents bundler from taking a long-time to resolve
+if RUBY_ENGINE == "jruby"
+  gem "activerecord-jdbcsqlite3-adapter", ">= 70.0"
+else
+  gem "sqlite3", ("~> 1.4" if ENV["RAILS_VERSION"]&.<("7.2"))
+end
+
 group :development, :test do
   gem "activerecord-import"
-  gem "bootsnap", require: false
+  gem "aruba"
+  gem "aws-sdk-s3"
   gem "builder"
-  gem "listen", "~> 3.0.8"
+  gem "capybara"
+  gem "cucumber-expressions"
+  gem "cucumber-rails"
+  gem "fakeweb"
+  gem "fog-aws"
+  gem "fog-local"
+  gem "generator_spec"
+  gem "launchy"
+  gem "nokogiri"
+  gem "ostruct" # required for Ruby >= 4.0
+  gem "rake"
   gem "rspec"
-  # Hound only supports certain versions of Rubocop -- 1.22.1 is currently the most recent one supported.
-  gem "rubocop", "1.22.1", require: false
-  gem "rubocop-rails"
-  gem "sprockets", "3.7.2"
+  gem "rubocop", require: false
+  gem "rubocop-performance", require: false
+  gem "rubocop-rails", require: false
+  gem "shoulda"
+  gem "timecop" unless RUBY_ENGINE == "jruby" # timecop's Time.new patch is broken on JRuby 10
 end

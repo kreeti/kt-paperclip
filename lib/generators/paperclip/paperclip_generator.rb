@@ -31,6 +31,6 @@ class PaperclipGenerator < ActiveRecord::Generators::Base
   end
 
   def migration_version
-    "[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]" if Rails.version.first.to_i > 4
+    "[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]"
   end
 end

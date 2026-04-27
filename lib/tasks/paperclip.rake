@@ -25,7 +25,7 @@ module Paperclip
     end
 
     def self.log_error(error)
-      $stderr.puts error
+      warn error
     end
   end
 end
@@ -40,18 +40,21 @@ namespace :paperclip do
       klass = Paperclip::Task.obtain_class
       names = Paperclip::Task.obtain_attachments(klass)
       styles = (ENV["STYLES"] || ENV["styles"] || "").split(",").map(&:to_sym)
+
       names.each do |name|
         Paperclip.each_instance_with_attachment(klass, name) do |instance|
           attachment = instance.send(name)
+
           begin
             attachment.reprocess!(*styles)
           rescue StandardError => e
             Paperclip::Task.log_error("exception while processing #{klass} ID #{instance.id}:")
-            Paperclip::Task.log_error(" " + e.message + "\n")
+            Paperclip::Task.log_error(" #{e.message}\n")
           end
-          unless instance.errors.blank?
+
+          if instance.errors.present?
             Paperclip::Task.log_error("errors while processing #{klass} ID #{instance.id}:")
-            Paperclip::Task.log_error(" " + instance.errors.full_messages.join("\n ") + "\n")
+            Paperclip::Task.log_error(" #{instance.errors.full_messages.join("\n ")}\n")
           end
         end
       end

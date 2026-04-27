@@ -438,9 +438,9 @@ describe Paperclip::Attachment do
   context "An attachment with :convert_options" do
     before do
       rebuild_model styles: {
-        thumb: "100x100",
-        large: "400x400"
-      },
+                      thumb: "100x100",
+                      large: "400x400"
+                    },
                     convert_options: {
                       all: "-do_stuff",
                       thumb: "-thumbnailize"
@@ -461,9 +461,9 @@ describe Paperclip::Attachment do
   context "An attachment with :source_file_options" do
     before do
       rebuild_model styles: {
-        thumb: "100x100",
-        large: "400x400"
-      },
+                      thumb: "100x100",
+                      large: "400x400"
+                    },
                     source_file_options: {
                       all: "-density 400",
                       thumb: "-depth 8"
@@ -484,9 +484,9 @@ describe Paperclip::Attachment do
   context "An attachment with :only_process" do
     before do
       rebuild_model styles: {
-        thumb: "100x100",
-        large: "400x400"
-      },
+                      thumb: "100x100",
+                      large: "400x400"
+                    },
                     only_process: [:thumb]
       @file = StringIO.new("...")
       @attachment = Dummy.new.avatar
@@ -502,9 +502,9 @@ describe Paperclip::Attachment do
   context "An attachment with :only_process that is a proc" do
     before do
       rebuild_model styles: {
-        thumb: "100x100",
-        large: "400x400"
-      },
+                      thumb: "100x100",
+                      large: "400x400"
+                    },
                     only_process: lambda { |_attachment| [:thumb] }
 
       @file = StringIO.new("...")
@@ -522,9 +522,9 @@ describe Paperclip::Attachment do
   context "An attachment with :convert_options that is a proc" do
     before do
       rebuild_model styles: {
-        thumb: "100x100",
-        large: "400x400"
-      },
+                      thumb: "100x100",
+                      large: "400x400"
+                    },
                     convert_options: {
                       all: lambda { |i| i.all },
                       thumb: lambda { |i| i.thumb }
@@ -1197,8 +1197,7 @@ describe Paperclip::Attachment do
             medium: ["100x100", :gif],
             small: ["32x32#", :jpg]
           }
-          @instance = Dummy.new
-          allow(@instance).to receive(:id).and_return 123
+          @instance = Dummy.create!
           @file = File.new(fixture_file("5k.png"), "rb")
           @attachment = @instance.avatar
         end

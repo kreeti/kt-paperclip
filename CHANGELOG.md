@@ -1,6 +1,26 @@
-[UNRELEASED]
+7.4.0 [UNRELEASED]
+* Version Support: Drop support for Ruby 2.6 and earlier (Rails support stays at 4.2 and later)
+* Add Github Actions CI to ensure support Ruby 2.7+, Rails 4.2+, ImageMagick 6 and 7, JRuby, and TruffleRuby.
+* Fix all failing specs on all Ruby versions.
+* Fix issues with Rails deprecation in tests.
+* Remove appraisal gem, use RAILS_VERSION env var in main Gemfile instead.
+* Move gemspec development dependencies to Gemfile, per latest standards.
+* Recreate .rubocop.yml and .rubocop_todo.yml.
+* Change "NEWS" and "OLD_NEWS" files to "CHANGELOG.md".
+* Remove UPGRADING message.
+* Remove cruft files: .travis.yml, .codeclimate.yml, .hound.yml
 
-* Improvement: Support aws-sdk-s3 >= 1.196.1 and multipart file downloads
+7.3.0 (2026-01-31)
+* Fix BOM for gd locale (https://github.com/kreeti/kt-paperclip/pull/158)
+* Support versions of aws-sdk-s3 >= 1.197 by conditionally using Aws::S3::TransferManager if available (https://github.com/kreeti/kt-paperclip/pull/155)
+* Fix frozen string literal warning in geometry.rb (https://github.com/kreeti/kt-paperclip/pull/151)
+* Feature: Add option to return attachment attributes on destroy (https://github.com/kreeti/kt-paperclip/pull/91)
+* Ruby 3.1: Fix loading of Fog (https://github.com/kreeti/kt-paperclip/pull/135, https://github.com/kreeti/kt-paperclip/pull/139)
+* French Locale (https://github.com/kreeti/kt-paperclip/pull/134)
+
+7.2.2 (2024-01-19)
+* Allow for terrapin 1.x (https://github.com/kreeti/kt-paperclip/pull/130)
+* Include migration statements on ActiveRecord::Migration (https://github.com/kreeti/kt-paperclip/pull/125)
 
 7.2.1 (2023-09-09)
 * Improvement: Support file extension names both as symbols and strings for :content_type_mappings
