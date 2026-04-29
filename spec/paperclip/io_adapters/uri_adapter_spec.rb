@@ -193,18 +193,11 @@ describe Paperclip::UriAdapter do
 
   describe "#download_content" do
     before do
-      allowed_mock =
-        if RUBY_VERSION < '2.5'
-          allow_any_instance_of(Paperclip::UriAdapter)
-        else
-          allow(URI)
-        end
-
-      allowed_mock.to receive(:open).and_return(@open_return)
+      allow(URI).to receive(:open).and_return(@open_return)
 
       @uri = URI.parse("https://github.com/thoughtbot/paper:clip.jpg")
       @subject = Paperclip.io_adapters.for(@uri)
-      @uri_opener = RUBY_VERSION < '2.5' ? @subject : URI
+      @uri_opener = URI
     end
 
     after do
