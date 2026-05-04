@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "uri"
 require "paperclip/url_generator"
 require "active_support/deprecation"

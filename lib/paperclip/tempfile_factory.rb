@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   class TempfileFactory
     def generate(name = random_name)

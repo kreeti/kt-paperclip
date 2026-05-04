@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   module Storage
     # fog is a modern and versatile cloud computing library for Ruby.
@@ -44,8 +46,7 @@ module Paperclip
           begin
             require "fog"
           rescue LoadError => e
-            e.message << " (You may need to install the fog gem)"
-            raise e
+            raise("#{e.message} (You may need to install the fog gem)")
           end
         end
 

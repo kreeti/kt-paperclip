@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rubygems"
 require "logger" # required for Ruby 3.0
 require "rspec"

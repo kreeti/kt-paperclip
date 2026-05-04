@@ -1,5 +1,6 @@
 7.4.0 [UNRELEASED]
 * Version Support: Drop support for Ruby 2.6 and earlier (Rails support stays at 4.2 and later)
+* Add frozen string literal comment to all files.
 * Add Github Actions CI to ensure support Ruby 2.7+, Rails 4.2+, ImageMagick 6 and 7, JRuby, and TruffleRuby.
 * Fix all failing specs on all Ruby versions.
 * Fix issues with Rails deprecation in tests.

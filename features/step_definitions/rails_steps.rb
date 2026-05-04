@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Given /^I generate a new rails application$/ do
   steps %{
     When I successfully run `rails new #{APP_NAME} --skip-bundle`
