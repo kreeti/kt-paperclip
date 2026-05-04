@@ -126,8 +126,7 @@ describe Paperclip::UploadedFileAdapter do
 
       context "don't trust client-given MIME type" do
         before do
-          Paperclip::UploadedFileAdapter.content_type_detector =
-            Paperclip::FileCommandContentTypeDetector
+          Paperclip::UploadedFileAdapter.content_type_detector = Paperclip::ContentTypeDetector
 
           class UploadedFile < OpenStruct; end
           @file = UploadedFile.new(

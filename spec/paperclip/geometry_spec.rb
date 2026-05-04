@@ -266,4 +266,47 @@ describe Paperclip::Geometry do
       end
     end
   end
+
+  describe "#==" do
+    it "is equal when width, height, modifier, and orientation match" do
+      a = Paperclip::Geometry.new(width: 100, height: 200, modifier: "#", orientation: 6)
+      b = Paperclip::Geometry.new(width: 100, height: 200, modifier: "#", orientation: 6)
+      expect(a).to eq(b)
+    end
+
+    it "is not equal when width differs" do
+      a = Paperclip::Geometry.new(100, 200)
+      b = Paperclip::Geometry.new(101, 200)
+      expect(a).not_to eq(b)
+    end
+
+    it "is not equal when height differs" do
+      a = Paperclip::Geometry.new(100, 200)
+      b = Paperclip::Geometry.new(100, 201)
+      expect(a).not_to eq(b)
+    end
+
+    it "is not equal when modifier differs" do
+      a = Paperclip::Geometry.new(width: 100, height: 200, modifier: "#")
+      b = Paperclip::Geometry.new(width: 100, height: 200, modifier: ">")
+      expect(a).not_to eq(b)
+    end
+
+    it "is not equal when orientation differs" do
+      a = Paperclip::Geometry.new(width: 100, height: 200, orientation: 6)
+      b = Paperclip::Geometry.new(width: 100, height: 200, orientation: 1)
+      expect(a).not_to eq(b)
+    end
+
+    it "is not equal to non-Geometry objects" do
+      a = Paperclip::Geometry.new(100, 200)
+      expect(a).not_to eq("100x200")
+    end
+
+    it "is equal when both have nil modifiers and zero orientation" do
+      a = Paperclip::Geometry.new(50, 50)
+      b = Paperclip::Geometry.new(50, 50)
+      expect(a).to eq(b)
+    end
+  end
 end

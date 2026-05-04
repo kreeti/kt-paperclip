@@ -26,7 +26,7 @@ describe Paperclip::Attachment do
     dummy.save
 
     # :small avatar should be 42px wide (processed original), not 50px (preprocessed original)
-    expect(`identify -format "%w" "#{dummy.avatar.path(:small)}"`.strip).to eq "42"
+    expect(`#{imagemagick_identify_command} -format "%w" "#{dummy.avatar.path(:small)}"`.strip).to eq "42"
 
     file.close
   end

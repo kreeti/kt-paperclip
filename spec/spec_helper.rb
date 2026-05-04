@@ -32,11 +32,18 @@ Dir[File.join(ROOT, "spec", "support", "**", "*.rb")].each { |f| require f }
 Rails = FakeRails.new("test", Pathname.new(ROOT).join("tmp"))
 Paperclip.deprecator.silenced = true
 
+module ImageMagickTestHelper
+  def imagemagick_identify_command
+    Paperclip::Commands::ImageMagick.send(:identify_command)
+  end
+end
+
 RSpec.configure do |config|
   config.include Assertions
   config.include ModelReconstruction
   config.include TestData
   config.include Reporting
+  config.include ImageMagickTestHelper
 
   config.before(:all) do
     rebuild_model

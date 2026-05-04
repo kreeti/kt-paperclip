@@ -1,5 +1,9 @@
 7.4.0 [UNRELEASED]
 * Version Support: Drop support for Ruby 2.6 and earlier (Rails support stays at 4.2 and later)
+* Officially support ImageMagick 7 using the `magick` command.
+* Extract out `Paperclip::Commands::ImageMagick` and `Paperclip::Commands::UnixFile` utilities.
+* Use Marcel gem consistently as a first choice for content type detection, with a fallback to Unix `file` utility.
+* Add `Paperclip::Geometry#==` method for comparison.
 * Add frozen string literal comment to all files.
 * Add Github Actions CI to ensure support Ruby 2.7+, Rails 4.2+, ImageMagick 6 and 7, JRuby, and TruffleRuby.
 * Fix all failing specs on all Ruby versions.
@@ -10,6 +14,11 @@
 * Change "NEWS" and "OLD_NEWS" files to "CHANGELOG.md".
 * Remove UPGRADING message.
 * Remove cruft files: .travis.yml, .codeclimate.yml, .hound.yml
+* Terrapin gem: Do not set explicitly set `Terrapin::CommandLine.path` (fix thread safety).
+* Deprecation: Deprecate `Paperclip.options[:command_path]` in favor of `:imagemagick_path` and `:file_command_path`.
+* Deprecation: Deprecate `Paperclip::GeometryDetector` and `Paperclip::GeometryParser` in favor of `Paperclip::Commands::ImageMagick::GeometryParser`.
+* Deprecation: Deprecate `Paperclip::FileCommandContentTypeDetector` in favor of `Paperclip::ContentTypeDetector`.
+* Deprecation: Deprecate `Paperclip.run` in favor of `Paperclip::Commands::Runner.run`.
 
 7.3.0 (2026-01-31)
 * Fix BOM for gd locale (https://github.com/kreeti/kt-paperclip/pull/158)

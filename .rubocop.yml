@@ -45,11 +45,17 @@ Metrics/PerceivedComplexity:
 Naming/PredicatePrefix:
   Enabled: false
 
+Style/Alias:
+  EnforcedStyle: prefer_alias_method
+
 Style/Documentation:
   Enabled: false
 
 Style/MissingRespondToMissing:
   Enabled: false
+
+Style/RaiseArgs:
+  EnforcedStyle: compact
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes

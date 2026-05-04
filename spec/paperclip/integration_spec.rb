@@ -55,7 +55,7 @@ describe "Paperclip" do
     after { @file.close }
 
     it "creates its thumbnails properly" do
-      assert_match(/\b50x50\b/, `identify "#{@dummy.avatar.path(:thumb)}"`)
+      assert_match(/\b50x50\b/, `#{imagemagick_identify_command} "#{@dummy.avatar.path(:thumb)}"`)
     end
 
     context "reprocessing with unreadable original" do
@@ -90,8 +90,8 @@ describe "Paperclip" do
       end
 
       it "creates its thumbnails properly" do
-        assert_match(/\b150x25\b/, `identify "#{@dummy.avatar.path(:thumb)}"`)
-        assert_match(/\b50x50\b/, `identify "#{@dummy.avatar.path(:dynamic)}"`)
+        assert_match(/\b150x25\b/, `#{imagemagick_identify_command} "#{@dummy.avatar.path(:thumb)}"`)
+        assert_match(/\b50x50\b/, `#{imagemagick_identify_command} "#{@dummy.avatar.path(:dynamic)}"`)
       end
 
       it "changes the timestamp", skip: RUBY_ENGINE == "truffleruby" && "TruffleRuby timer precision" do
@@ -319,18 +319,18 @@ describe "Paperclip" do
        ["300x46", :large],
        ["100x15", :medium],
        ["32x32", :thumb]].each do |geo, style|
-        cmd = %[identify -format "%wx%h" "#{@dummy.avatar.path(style)}"]
+        cmd = %[#{imagemagick_identify_command} -format "%wx%h" "#{@dummy.avatar.path(style)}"]
         assert_equal geo, `#{cmd}`.chomp, cmd
       end
 
       saved_paths = [:thumb, :medium, :large, :original].map { |s| @dummy.avatar.path(s) }
 
       @d2 = Dummy.find(@dummy.id)
-      assert_equal "100x15", `identify -format "%wx%h" "#{@d2.avatar.path}"`.chomp
-      assert_equal "434x66", `identify -format "%wx%h" "#{@d2.avatar.path(:original)}"`.chomp
-      assert_equal "300x46", `identify -format "%wx%h" "#{@d2.avatar.path(:large)}"`.chomp
-      assert_equal "100x15", `identify -format "%wx%h" "#{@d2.avatar.path(:medium)}"`.chomp
-      assert_equal "32x32",  `identify -format "%wx%h" "#{@d2.avatar.path(:thumb)}"`.chomp
+      assert_equal "100x15", `#{imagemagick_identify_command} -format "%wx%h" "#{@d2.avatar.path}"`.chomp
+      assert_equal "434x66", `#{imagemagick_identify_command} -format "%wx%h" "#{@d2.avatar.path(:original)}"`.chomp
+      assert_equal "300x46", `#{imagemagick_identify_command} -format "%wx%h" "#{@d2.avatar.path(:large)}"`.chomp
+      assert_equal "100x15", `#{imagemagick_identify_command} -format "%wx%h" "#{@d2.avatar.path(:medium)}"`.chomp
+      assert_equal "32x32",  `#{imagemagick_identify_command} -format "%wx%h" "#{@d2.avatar.path(:thumb)}"`.chomp
 
       assert @dummy.valid?
       assert @dummy.save
@@ -417,14 +417,14 @@ describe "Paperclip" do
       after { @file2.close }
 
       it "works when assigned a file" do
-        assert_not_equal `identify -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
-                         `identify -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
+        assert_not_equal `#{imagemagick_identify_command} -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
+                         `#{imagemagick_identify_command} -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
 
         assert @dummy.avatar = @dummy2.avatar
         @dummy.save
         assert_equal @dummy.avatar_file_name, @dummy2.avatar_file_name
-        assert_equal `identify -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
-                     `identify -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
+        assert_equal `#{imagemagick_identify_command} -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
+                     `#{imagemagick_identify_command} -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
       end
     end
   end
@@ -566,7 +566,7 @@ describe "Paperclip" do
          ["300x46", :large],
          ["100x15", :medium],
          ["32x32", :thumb]].each do |geo, style|
-          cmd = %[identify -format "%wx%h" "#{@files_on_s3[style].path}"]
+          cmd = %[#{imagemagick_identify_command} -format "%wx%h" "#{@files_on_s3[style].path}"]
           assert_equal geo, `#{cmd}`.chomp, cmd
         end
 
@@ -576,7 +576,7 @@ describe "Paperclip" do
          ["300x46", :large],
          ["100x15", :medium],
          ["32x32", :thumb]].each do |geo, style|
-          cmd = %[identify -format "%wx%h" "#{@d2_files[style].path}"]
+          cmd = %[#{imagemagick_identify_command} -format "%wx%h" "#{@d2_files[style].path}"]
           assert_equal geo, `#{cmd}`.chomp, cmd
         end
 

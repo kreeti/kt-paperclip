@@ -1,24 +1,25 @@
 # frozen_string_literal: true
 
 module Paperclip
+  # The content-type detection strategy is as follows:
+  #
+  # 1. Blank/Empty files: If there's no filepath or the file is empty,
+  #    provide a sensible default (application/octet-stream or inode/x-empty)
+  #
+  # 2. Calculated match: Return the first result that is found by both the
+  #    Marcel gem (or `file` command) and MIME::Types.
+  #
+  # 3. Standard types: Return the first standard (without an x- prefix) entry
+  #    in MIME::Types
+  #
+  # 4. Experimental types: If there were no standard types in MIME::Types
+  #    list, try to return the first experimental one
+  #
+  # 5. Raw `file` command: Just use the output of Marcel (or `file` command),
+  #    cached from step 2.
+  #
+  # 6. If nothing found, return a sensible default.
   class ContentTypeDetector
-    # The content-type detection strategy is as follows:
-    #
-    # 1. Blank/Empty files: If there's no filepath or the file is empty,
-    #    provide a sensible default (application/octet-stream or inode/x-empty)
-    #
-    # 2. Calculated match: Return the first result that is found by both the
-    #    `file` command and MIME::Types.
-    #
-    # 3. Standard types: Return the first standard (without an x- prefix) entry
-    #    in MIME::Types
-    #
-    # 4. Experimental types: If there were no standard types in MIME::Types
-    #    list, try to return the first experimental one
-    #
-    # 5. Raw `file` command: Just use the output of the `file` command raw, or
-    #    a sensible default. This is cached from Step 2.
-
     EMPTY_TYPE = "inode/x-empty"
     SENSIBLE_DEFAULT = "application/octet-stream"
 
@@ -27,15 +28,15 @@ module Paperclip
     end
 
     # Returns a String describing the file's content type
-    def detect
+    def detect(default = SENSIBLE_DEFAULT)
       if blank_name?
-        SENSIBLE_DEFAULT
+        default
       elsif empty_file?
         EMPTY_TYPE
       elsif calculated_type_matches.any?
         calculated_type_matches.first
       else
-        type_from_file_contents || SENSIBLE_DEFAULT
+        type_from_file_contents || default
       end.to_s
     end
 
@@ -62,26 +63,22 @@ module Paperclip
     end
 
     def type_from_file_contents
-      type_from_marcel || type_from_file_command
+      return @type_from_file_contents if defined?(@type_from_file_contents)
+
+      @type_from_file_contents = type_from_marcel || type_from_file_command
     rescue Errno::ENOENT => e
       Paperclip.log("Error while determining content type: #{e}")
-      SENSIBLE_DEFAULT
+      @type_from_file_contents = nil
     end
 
     def type_from_marcel
-      return @type_from_marcel if defined? @type_from_marcel
-
-      @type_from_marcel = Marcel::MimeType.for Pathname.new(@filepath),
-                                               name: @filepath
-      # Marcel::MineType returns 'application/octet-stream' if it can't find
-      # a valid type.
-      @type_from_marcel = nil if @type_from_marcel == SENSIBLE_DEFAULT
-      @type_from_marcel
+      type = Marcel::MimeType.for(Pathname.new(@filepath), name: @filepath)
+      # Marcel::MineType returns 'application/octet-stream' if it can't find a valid type.
+      type == SENSIBLE_DEFAULT ? nil : type
     end
 
     def type_from_file_command
-      @type_from_file_command ||=
-        FileCommandContentTypeDetector.new(@filepath).detect
+      Commands::UnixFile.detect_content_type(@filepath)
     end
   end
 end

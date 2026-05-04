@@ -33,8 +33,8 @@ module Paperclip
 
       geometry             = options[:geometry].to_s
       @crop                = geometry[-1, 1] == "#"
-      @target_geometry     = options.fetch(:string_geometry_parser, Geometry).parse(geometry)
-      @current_geometry    = options.fetch(:file_geometry_parser, Geometry).from_file(@file)
+      @target_geometry     = options.fetch(:string_geometry_parser, Commands::ImageMagick::GeometryParser).parse(geometry)
+      @current_geometry    = options.fetch(:file_geometry_parser, Commands::ImageMagick::GeometryParser).from_file(@file)
       @source_file_options = options[:source_file_options]
       @convert_options     = options[:convert_options]
       @whiny               = options.fetch(:whiny, true)
@@ -86,10 +86,8 @@ module Paperclip
       rescue Terrapin::ExitStatusError => e
         if @whiny
           message = "There was an error processing the thumbnail for #{@basename}:\n" + e.message
-          raise Paperclip::Error, message
+          raise Paperclip::Error.new(message)
         end
-      rescue Terrapin::CommandNotFoundError => e
-        raise Paperclip::Errors::CommandNotFoundError.new("Could not run the `convert` command. Please install ImageMagick.")
       end
 
       dst
@@ -121,13 +119,12 @@ module Paperclip
     # Return true if ImageMagick's +identify+ returns an animated format
     def identified_as_animated?
       if @identified_as_animated.nil?
-        @identified_as_animated = ANIMATED_FORMATS.include? identify("-format %m :file", file: "#{@file.path}[0]").to_s.downcase.strip
+        output = identify("-format %m :file", file: "#{@file.path}[0]").to_s.downcase.strip
+        @identified_as_animated = ANIMATED_FORMATS.include?(output)
       end
       @identified_as_animated
-    rescue Terrapin::ExitStatusError => e
-      raise Paperclip::Error, "There was an error running `identify` for #{@basename}" if @whiny
-    rescue Terrapin::CommandNotFoundError => e
-      raise Paperclip::Errors::CommandNotFoundError.new("Could not run the `identify` command. Please install ImageMagick.")
+    rescue Terrapin::ExitStatusError
+      raise Paperclip::Error.new("There was an error running `identify` for #{@basename}") if @whiny
     end
   end
 end

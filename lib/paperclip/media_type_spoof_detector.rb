@@ -67,20 +67,11 @@ module Paperclip
     end
 
     def calculated_content_type
-      @calculated_content_type ||= type_from_file_command.chomp
+      @calculated_content_type ||= ContentTypeDetector.new(@file.path).detect("")
     end
 
     def calculated_media_type
       @calculated_media_type ||= calculated_content_type.split("/").first
-    end
-
-    def type_from_file_command
-      Paperclip.run("file", "-b --mime :file", file: @file.path).
-        split(/[:;\s]+/).first
-    rescue Terrapin::CommandLineError
-      Paperclip.log("Problem getting type from `file` command. Possible that `file` doesn't exist on this system. Content Type validations don't work without this.")
-
-      ""
     end
 
     def mapped_content_type

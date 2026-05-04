@@ -1,47 +1,25 @@
 # frozen_string_literal: true
 
 module Paperclip
+  # @deprecated Will be removed in Paperclip 8.0. Use +Paperclip::Commands::ImageMagick::GeometryParser+ instead.
   class GeometryDetector
+    # @deprecated Will be removed in Paperclip 8.0. Use +Paperclip::Commands::ImageMagick::GeometryParser+ instead.
     def initialize(file)
+      warn_deprecation
       @file = file
-      raise_if_blank_file
+      raise Errors::NotIdentifiedByImageMagickError.new("Cannot find the geometry of a file with a blank name") if @file.blank?
     end
 
+    # @deprecated Will be removed in Paperclip 8.0. Use +Paperclip::Commands::ImageMagick::GeometryParser+ instead.
     def make
-      geometry = GeometryParser.new(geometry_string.strip).make
-      geometry || raise(Errors::NotIdentifiedByImageMagickError.new("Could not identify image size"))
+      warn_deprecation
+      Paperclip::Commands::ImageMagick::GeometryParser.from_file(@file)
     end
 
     private
 
-    def geometry_string
-      orientation = Paperclip.options[:use_exif_orientation] ?
-        "%[exif:orientation]" : "1"
-      Paperclip.run(
-        Paperclip.options[:is_windows] ? "magick identify" : "identify",
-        "-format '%wx%h,#{orientation}' :file", {
-          file: "#{path}[0]"
-        },
-        swallow_stderr: true
-      )
-    rescue Terrapin::ExitStatusError
-      ""
-    rescue Terrapin::CommandNotFoundError => e
-      raise_because_imagemagick_missing
-    end
-
-    def path
-      @file.respond_to?(:path) ? @file.path : @file
-    end
-
-    def raise_if_blank_file
-      if path.blank?
-        raise Errors::NotIdentifiedByImageMagickError.new("Cannot find the geometry of a file with a blank name")
-      end
-    end
-
-    def raise_because_imagemagick_missing
-      raise Errors::CommandNotFoundError.new("Could not run the `identify` command. Please install ImageMagick.")
+    def warn_deprecation
+      Paperclip.deprecator.warn("Paperclip::GeometryDetector has been replaced by Paperclip::Commands::ImageMagick::GeometryParser")
     end
   end
 end

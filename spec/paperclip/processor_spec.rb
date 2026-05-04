@@ -11,17 +11,15 @@ describe Paperclip::Processor do
   end
 
   context "Calling #convert" do
-    it "runs the convert command with Terrapin" do
-      Paperclip.options[:log_command] = false
-      expect(Terrapin::CommandLine).to receive(:new).with("convert", "stuff", {}).and_return(double(run: nil))
+    it "delegates to Commands::ImageMagick.convert" do
+      expect(Paperclip::Commands::ImageMagick).to receive(:convert).with("stuff", {})
       Paperclip::Processor.new("filename").convert("stuff")
     end
   end
 
   context "Calling #identify" do
-    it "runs the identify command with Terrapin" do
-      Paperclip.options[:log_command] = false
-      expect(Terrapin::CommandLine).to receive(:new).with("identify", "stuff", {}).and_return(double(run: nil))
+    it "delegates to Commands::ImageMagick.identify" do
+      expect(Paperclip::Commands::ImageMagick).to receive(:identify).with("stuff", {})
       Paperclip::Processor.new("filename").identify("stuff")
     end
   end

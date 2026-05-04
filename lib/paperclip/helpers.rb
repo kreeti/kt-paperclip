@@ -10,31 +10,9 @@ module Paperclip
       Paperclip::Interpolations[key] = block
     end
 
-    # The run method takes the name of a binary to run, the arguments
-    # to that binary, the values to interpolate and some local options.
-    #
-    #  :cmd -> The name of a binary to run.
-    #
-    #  :arguments -> The command line arguments to that binary.
-    #
-    #  :interpolation_values -> Values to be interpolated into the arguments.
-    #
-    #  :local_options -> The options to be used by Cocain::CommandLine.
-    #                    These could be: runner
-    #                                    logger
-    #                                    swallow_stderr
-    #                                    expected_outcodes
-    #                                    environment
-    #                                    runner_options
-    #
-    def run(cmd, arguments = "", interpolation_values = {}, local_options = {})
-      command_path = options[:command_path]
-      terrapin_path_array = Terrapin::CommandLine.path.try(:split, Terrapin::OS.path_separator)
-      Terrapin::CommandLine.path = [terrapin_path_array, command_path].flatten.compact.uniq
-      if logging? && (options[:log_command] || local_options[:log_command])
-        local_options = local_options.merge(logger: logger)
-      end
-      Terrapin::CommandLine.new(cmd, arguments, local_options).run(interpolation_values)
+    # @deprecated Will be removed in Paperclip 8.0. Use +Paperclip::Commands::Runner.run+ instead.
+    def run(command, arguments = nil, interpolation_values = {}, local_options = {})
+      Commands::Runner.run(command, nil, arguments, interpolation_values, local_options)
     end
 
     # Find all instances of the given Active Record model +klass+ with attachment +name+.

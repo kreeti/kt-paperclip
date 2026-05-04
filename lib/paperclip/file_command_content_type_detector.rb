@@ -1,30 +1,27 @@
 # frozen_string_literal: true
 
 module Paperclip
+  # @deprecated Will be removed in Paperclip 8.0. Use +Paperclip::ContentTypeDetector+ instead.
   class FileCommandContentTypeDetector
+    # @deprecated Will be removed in Paperclip 8.0.
     SENSIBLE_DEFAULT = "application/octet-stream"
 
+    # @deprecated Will be removed in Paperclip 8.0. Use +Paperclip::ContentTypeDetector+ instead.
     def initialize(filename)
+      warn_deprecation
       @filename = filename
     end
 
+    # @deprecated Will be removed in Paperclip 8.0. Use +Paperclip::ContentTypeDetector+ instead.
     def detect
-      type_from_file_command
+      warn_deprecation
+      Paperclip::Commands::UnixFile.detect_content_type(@filename) || SENSIBLE_DEFAULT
     end
 
     private
 
-    def type_from_file_command
-      # On BSDs, `file` doesn't give a result code of 1 if the file doesn't exist.
-      type = begin
-               Paperclip.run("file", "-b --mime :file", file: @filename)
-             rescue Terrapin::CommandLineError => e
-               Paperclip.log("Error while determining content type: #{e}")
-               SENSIBLE_DEFAULT
-             end
-
-      type = SENSIBLE_DEFAULT if type.nil? || type.match(/\(.*?\)/)
-      type.split(/[:;\s]+/)[0]
+    def warn_deprecation
+      Paperclip.deprecator.warn("Paperclip::FileCommandContentTypeDetector has been replaced by Paperclip::ContentTypeDetector.")
     end
   end
 end
