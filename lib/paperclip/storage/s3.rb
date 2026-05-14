@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   module Storage
     # Amazon's S3 file hosting service is a scalable, easy place to store files for
@@ -125,8 +127,7 @@ module Paperclip
         begin
           require "aws-sdk-s3"
         rescue LoadError => e
-          e.message << " (You may need to install the aws-sdk-s3 gem)"
-          raise e
+          raise("#{e.message} (You may need to install the aws-sdk-s3 gem)")
         end
 
         base.instance_eval do

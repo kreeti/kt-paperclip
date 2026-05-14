@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Reporting
   def silence_stream(stream)
     old_stream = stream.dup

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   module Shoulda
     module Matchers
@@ -39,7 +41,7 @@ module Paperclip
         end
 
         def failure_message
-          "#{expected_attachment}\n".tap do |message|
+          (+"#{expected_attachment}\n").tap do |message|
             message << accepted_types_and_failures.to_s
             message << "\n\n" if @allowed_types.present? && @rejected_types.present?
             message << rejected_types_and_failures.to_s
@@ -54,7 +56,7 @@ module Paperclip
 
         def accepted_types_and_failures
           if @allowed_types.present?
-            "Accept content types: #{@allowed_types.join(', ')}\n".tap do |message|
+            (+"Accept content types: #{@allowed_types.join(', ')}\n").tap do |message|
               message << if @missing_allowed_types.present?
                            "  #{@missing_allowed_types.join(', ')} were rejected."
                          else
@@ -66,7 +68,7 @@ module Paperclip
 
         def rejected_types_and_failures
           if @rejected_types.present?
-            "Reject content types: #{@rejected_types.join(', ')}\n".tap do |message|
+            (+"Reject content types: #{@rejected_types.join(', ')}\n").tap do |message|
               message << if @missing_rejected_types.present?
                            "  #{@missing_rejected_types.join(', ')} were accepted."
                          else

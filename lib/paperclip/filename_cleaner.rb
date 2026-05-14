@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   class FilenameCleaner
     def initialize(invalid_character_regex)
