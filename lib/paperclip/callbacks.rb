@@ -11,14 +11,15 @@ module Paperclip
       def define_paperclip_callbacks(*callbacks)
         define_callbacks(*[callbacks, { terminator: hasta_la_vista_baby }].flatten)
         callbacks.each do |callback|
-          eval <<-end_callbacks
-            def before_#{callback}(*args, &blk)
+          class_eval(<<~RUBY, __FILE__, __LINE__ + 1)
+            def self.before_#{callback}(*args, &blk)
               set_callback(:#{callback}, :before, *args, &blk)
             end
-            def after_#{callback}(*args, &blk)
+
+            def self.after_#{callback}(*args, &blk)
               set_callback(:#{callback}, :after, *args, &blk)
             end
-          end_callbacks
+          RUBY
         end
       end
 
