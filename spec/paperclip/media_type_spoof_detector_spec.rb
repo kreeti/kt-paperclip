@@ -41,11 +41,11 @@ describe Paperclip::MediaTypeSpoofDetector do
     adapter = Paperclip.io_adapters.for(File.new(file.path))
 
     begin
-      Paperclip.options[:content_type_mappings] = { pem: "text/plain" }
+      Paperclip.options[:content_type_mappings] = { pem: "application/x-x509-ca-cert" }
       assert !Paperclip::MediaTypeSpoofDetector.using(adapter, adapter.original_filename, adapter.content_type).spoofed?
 
       # As a string.
-      Paperclip.options[:content_type_mappings] = { "pem" => "text/plain" }
+      Paperclip.options[:content_type_mappings] = { "pem" => "application/x-x509-ca-cert" }
       assert !Paperclip::MediaTypeSpoofDetector.using(adapter, adapter.original_filename, adapter.content_type).spoofed?
     ensure
       Paperclip.options[:content_type_mappings] = {}
@@ -111,18 +111,12 @@ describe Paperclip::MediaTypeSpoofDetector do
     end
   end
 
-  context "#type_from_file_command" do
+  context "#calculated_content_type" do
     let(:file) { File.new(fixture_file("empty.html")) }
     let(:detector) { Paperclip::MediaTypeSpoofDetector.new(file, "html", "") }
 
-    it "does work with the output of old versions of file" do
-      allow(Paperclip).to receive(:run).and_return("text/html charset=us-ascii")
-      expect(detector.send(:type_from_file_command)).to eq("text/html")
-    end
-
-    it "does work with the output of new versions of file" do
-      allow(Paperclip).to receive(:run).and_return("text/html; charset=us-ascii")
-      expect(detector.send(:type_from_file_command)).to eq("text/html")
+    it "delegates to ContentTypeDetector" do
+      expect(detector.send(:calculated_content_type)).to eq("text/html")
     end
   end
 end

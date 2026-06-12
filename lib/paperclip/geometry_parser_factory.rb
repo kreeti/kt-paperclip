@@ -1,33 +1,27 @@
 # frozen_string_literal: true
 
 module Paperclip
+  # @deprecated Will be removed in Paperclip 8.0. Use +Paperclip::Commands::ImageMagick::GeometryParser+ instead.
   class GeometryParser
-    FORMAT = /\b(\d*)x?(\d*)\b(?:,(\d?))?(\@\>|\>\@|[\>\<\#\@\%^!])?/i.freeze
+    # @deprecated Will be removed in Paperclip 8.0. Use +Paperclip::Commands::ImageMagick::GeometryParser::FORMAT+ instead.
+    FORMAT = Paperclip::Commands::ImageMagick::GeometryParser::FORMAT
+
+    # @deprecated Will be removed in Paperclip 8.0. Use +Paperclip::Commands::ImageMagick::GeometryParser+ instead.
     def initialize(string)
+      warn_deprecation
       @string = string
     end
 
+    # @deprecated Will be removed in Paperclip 8.0. Use +Paperclip::Commands::ImageMagick::GeometryParser+ instead.
     def make
-      if match
-        Geometry.new(
-          height: @height,
-          width: @width,
-          modifier: @modifier,
-          orientation: @orientation
-        )
-      end
+      warn_deprecation
+      Paperclip::Commands::ImageMagick::GeometryParser.parse(@string)
     end
 
     private
 
-    def match
-      if actual_match = @string && @string.match(FORMAT)
-        @width = actual_match[1]
-        @height = actual_match[2]
-        @orientation = actual_match[3]
-        @modifier = actual_match[4]
-      end
-      actual_match
+    def warn_deprecation
+      Paperclip.deprecator.warn("Paperclip::GeometryParser has been replaced by Paperclip::Commands::ImageMagick::GeometryParser")
     end
   end
 end

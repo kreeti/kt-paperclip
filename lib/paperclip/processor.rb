@@ -17,9 +17,6 @@ module Paperclip
   #
   # #make must return an instance of File (Tempfile is acceptable) which
   # contains the results of the processing.
-  #
-  # See Paperclip.run for more information about using command-line
-  # utilities from within Processors.
   class Processor
     attr_accessor :file, :options, :attachment
 
@@ -35,24 +32,12 @@ module Paperclip
       new(file, options, attachment).make
     end
 
-    # The convert method runs the convert binary with the provided arguments.
-    # See Paperclip.run for the available options.
-    def convert(arguments = "", local_options = {})
-      Paperclip.run(
-        Paperclip.options[:is_windows] ? "magick convert" : "convert",
-        arguments,
-        local_options
-      )
+    def convert(arguments = nil, interpolation_values = {})
+      Paperclip::Commands::ImageMagick.convert(arguments, interpolation_values)
     end
 
-    # The identify method runs the identify binary with the provided arguments.
-    # See Paperclip.run for the available options.
-    def identify(arguments = "", local_options = {})
-      Paperclip.run(
-        Paperclip.options[:is_windows] ? "magick identify" : "identify",
-        arguments,
-        local_options
-      )
+    def identify(arguments = nil, interpolation_values = {})
+      Paperclip::Commands::ImageMagick.identify(arguments, interpolation_values)
     end
   end
 end
