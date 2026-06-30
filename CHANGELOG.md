@@ -1,4 +1,6 @@
-7.4.0 [UNRELEASED]
+8.1.0 [UNRELEASED]
+
+8.0.0 (2026-06-30)
 * Version Support: Drop support for Ruby 2.6 and earlier (Rails support stays at 4.2 and later)
 * Officially support ImageMagick 7 using the `magick` command.
 * Extract out `Paperclip::Commands::ImageMagick` and `Paperclip::Commands::UnixFile` utilities.
