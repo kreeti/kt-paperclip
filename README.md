@@ -90,7 +90,7 @@ Requirements
 
 ### Ruby and Rails
 
-Paperclip now requires Ruby version **>= 2.3** and Rails version **>= 4.2**
+Paperclip now requires Ruby version **>= 2.7** and Rails version **>= 5.2**
 (only if you're going to use Paperclip with Ruby on Rails).
 
 ### ImageMagick Image Processor
@@ -139,7 +139,7 @@ Paperclip is distributed as a gem, which is how it should be used in your app.
 Include the gem in your Gemfile:
 
 ```ruby
-gem "kt-paperclip", "~> 6.4", ">= 6.4.1"
+gem "kt-paperclip", "~> 8.0"
 ```
 
 Or, if you want to get the latest, you can get master from the main paperclip repository:
