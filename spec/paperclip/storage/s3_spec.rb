@@ -765,7 +765,7 @@ describe Paperclip::Storage::S3 do
         object = double
         allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-        expect(object).to receive(:presigned_url).with(:get, { expires_in: 3600 })
+        expect(object).to receive(:presigned_url).with(:get, { expires_in: 3600, virtual_host: true })
         @dummy.avatar.expiring_url
       end
     end
@@ -785,6 +785,7 @@ describe Paperclip::Storage::S3 do
             {
               expires_in: 3600,
               response_content_disposition: "inline",
+              virtual_host: true
             },
           )
         @dummy.avatar.expiring_url
@@ -813,6 +814,7 @@ describe Paperclip::Storage::S3 do
             {
               expires_in: 3600,
               response_content_type: "image/png",
+              virtual_host: true
             },
           )
         @dummy.avatar.expiring_url
@@ -861,14 +863,14 @@ describe Paperclip::Storage::S3 do
     it "generates a url for the thumb" do
       object = double
       allow(@dummy.avatar).to receive(:s3_object).with(:thumb).and_return(object)
-      expect(object).to receive(:presigned_url).with(:get, { expires_in: 1800 })
+      expect(object).to receive(:presigned_url).with(:get, { expires_in: 1800, virtual_host: true })
       @dummy.avatar.expiring_url(1800, :thumb)
     end
 
     it "generates a url for the default style" do
       object = double
       allow(@dummy.avatar).to receive(:s3_object).with(:original).and_return(object)
-      expect(object).to receive(:presigned_url).with(:get, { expires_in: 1800 })
+      expect(object).to receive(:presigned_url).with(:get, { expires_in: 1800, virtual_host: true })
       @dummy.avatar.expiring_url(1800)
     end
   end
