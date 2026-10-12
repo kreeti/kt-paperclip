@@ -34,6 +34,9 @@ describe Paperclip::MediaTypeSpoofDetector do
   end
 
   it "does not reject when the extension => content_type is in :content_type_mappings" do
+    # The content is deliberately not valid PEM: a real certificate has a magic number of its own,
+    # which would satisfy the check before the mapping override is ever consulted. The mapping is
+    # keyed on what the *contents* detect as, which for this file is text/plain.
     file = Tempfile.open(["test", ".PEM"])
     file.puts "Certificate!"
     file.close
@@ -41,11 +44,11 @@ describe Paperclip::MediaTypeSpoofDetector do
     adapter = Paperclip.io_adapters.for(File.new(file.path))
 
     begin
-      Paperclip.options[:content_type_mappings] = { pem: "application/x-x509-ca-cert" }
+      Paperclip.options[:content_type_mappings] = { pem: "text/plain" }
       assert !Paperclip::MediaTypeSpoofDetector.using(adapter, adapter.original_filename, adapter.content_type).spoofed?
 
       # As a string.
-      Paperclip.options[:content_type_mappings] = { "pem" => "application/x-x509-ca-cert" }
+      Paperclip.options[:content_type_mappings] = { "pem" => "text/plain" }
       assert !Paperclip::MediaTypeSpoofDetector.using(adapter, adapter.original_filename, adapter.content_type).spoofed?
     ensure
       Paperclip.options[:content_type_mappings] = {}
@@ -137,11 +140,54 @@ describe Paperclip::MediaTypeSpoofDetector do
     end
   end
 
+  # An SVG that opens with an XML declaration has no magic number of its own -- Marcel resolves it
+  # to application/xml, whose media type is "application", not "image". The `file` command knows
+  # better, so both sources have to be consulted before calling a file a spoof.
+  context "SVG file carrying an XML declaration, told SVG" do
+    let(:file) do
+      tempfile = Tempfile.new(["drawing", ".svg"])
+      tempfile.write(%(<?xml version="1.0"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"/>\n))
+      tempfile.close
+      File.open(tempfile.path)
+    end
+
+    let(:spoofed?) do
+      Paperclip::MediaTypeSpoofDetector.
+        using(file, "drawing.svg", "image/svg+xml").
+        spoofed?
+    end
+
+    it "accepts the file" do
+      assert !spoofed?
+    end
+  end
+
+  context "when the `file` command is unavailable" do
+    before do
+      allow(Paperclip::Commands::UnixFile).
+        to receive(:detect_content_type).and_return(nil)
+    end
+
+    it "still rejects a file whose magic number contradicts the supplied type" do
+      file = File.open(fixture_file("empty.html"))
+      assert Paperclip::MediaTypeSpoofDetector.using(file, "evil.jpg", "image/jpeg").spoofed?
+    end
+
+    it "does not reject a file whose contents cannot be identified at all" do
+      tempfile = Tempfile.new(["notes", ".txt"])
+      tempfile.write("nothing to see here")
+      tempfile.close
+
+      file = File.open(tempfile.path)
+      assert !Paperclip::MediaTypeSpoofDetector.using(file, "notes.txt", "text/plain").spoofed?
+    end
+  end
+
   context "#calculated_content_type" do
     let(:file) { File.new(fixture_file("empty.html")) }
     let(:detector) { Paperclip::MediaTypeSpoofDetector.new(file, "html", "") }
 
-    it "delegates to ContentTypeDetector" do
+    it "determines the type from the file contents" do
       expect(detector.send(:calculated_content_type)).to eq("text/html")
     end
   end

@@ -375,8 +375,10 @@ validates_attachment :avatar,
   content_type: ["image/jpeg", "image/gif", "image/png"]
 ```
 
-`Paperclip::ContentTypeDetector` will attempt to match a file's extension to an
-inferred content_type, regardless of the actual contents of the file.
+`Paperclip::ContentTypeDetector` uses the file's extension as a hint when the contents alone are
+ambiguous, so the stored `content_type` is not by itself proof of what a file contains. The check
+that ignores the filename entirely is `validates_media_type_spoof_detection` (see Security
+Validations below); use it alongside your `content_type` validation.
 
 ### Duplicate error messages
 
@@ -444,16 +446,25 @@ being uploaded as JPEGs, but will not prevent GIFs from being uploaded with a
 `.jpg` extension. This validation will only add validation errors to the form. It
 will not cause errors to be raised.
 
+The type is detected from the file's contents only, using magic-number detection plus the Unix
+`file` utility. The filename is never consulted. Where `file` is unavailable the check falls back
+to magic-number detection alone, which cannot identify text-based formats; content it cannot
+identify at all is accepted rather than rejected.
+
 This can sometimes cause false validation errors in applications that use custom
 file extensions. In these cases you may wish to add your custom extension to the
 list of content type mappings by creating `config/initializers/paperclip.rb`:
 
 ```ruby
-# Allow ".foo" as an extension for files with the MIME type "text/plain".
+# Allow ".foo" as an extension for files whose contents are detected as "text/plain".
 Paperclip.options[:content_type_mappings] = {
   foo: %w(text/plain)
 }
 ```
+
+The value is the type the *contents* detect as (what `file -b --mime` reports), not the type you
+would like the extension to mean. Text-based formats such as SVG and CSV are the usual reason to
+need one.
 
 ---
 

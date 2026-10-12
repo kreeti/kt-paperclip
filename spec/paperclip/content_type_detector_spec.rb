@@ -49,18 +49,15 @@ describe Paperclip::ContentTypeDetector do
     FileUtils.rm @filename
   end
 
-  # https://github.com/kreeti/kt-paperclip/issues/173
-  #
-  # Marcel is passed the file path as a `name:` hint, so when the bytes are
-  # ambiguous it answers from the extension rather than the content. The
-  # detected type must come from the bytes, otherwise renaming a file is enough
-  # to defeat spoof detection.
-  it "detects the type from the contents, not the extension, for ambiguous content" do
+  # The filename is a deliberate input here -- it is what distinguishes .xlsm from .xlsx above, and
+  # what keeps a .csv from being stored as text/plain. The check that must ignore the filename is
+  # Paperclip::MediaTypeSpoofDetector; see its spec.
+  it "uses the filename as a hint when the contents are ambiguous" do
     @filename = "#{Dir.tmpdir}/wrong.jpg"
     File.open(@filename, "w+") do |file|
       file.puts "WRONG IMAGE"
       file.rewind
-      assert_equal "text/plain", Paperclip::ContentTypeDetector.new(file.path).detect
+      assert_equal "image/jpeg", Paperclip::ContentTypeDetector.new(file.path).detect
     end
     FileUtils.rm @filename
   end
