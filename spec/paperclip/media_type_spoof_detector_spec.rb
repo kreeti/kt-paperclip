@@ -111,6 +111,32 @@ describe Paperclip::MediaTypeSpoofDetector do
     end
   end
 
+  # https://github.com/kreeti/kt-paperclip/issues/173
+  #
+  # Marcel is consulted first and is given the file path as a `name:` hint, so
+  # for content it cannot identify from the bytes alone (plain text, for
+  # example) it falls back to the filename extension. A text file renamed to
+  # wrong.jpg therefore "calculates" as image/jpeg and the spoof goes
+  # undetected. 7.3.0 ran the `file` command on the bytes and rejected it.
+  context "text file renamed with an image extension, and we're told JPEG" do
+    let(:file) do
+      tempfile = Tempfile.new(["wrong", ".jpg"])
+      tempfile.write("WRONG IMAGE")
+      tempfile.close
+      File.open(tempfile.path)
+    end
+
+    let(:spoofed?) do
+      Paperclip::MediaTypeSpoofDetector.
+        using(file, "wrong.jpg", "image/jpeg").
+        spoofed?
+    end
+
+    it "rejects the file" do
+      assert spoofed?
+    end
+  end
+
   context "#calculated_content_type" do
     let(:file) { File.new(fixture_file("empty.html")) }
     let(:detector) { Paperclip::MediaTypeSpoofDetector.new(file, "html", "") }

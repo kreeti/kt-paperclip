@@ -49,6 +49,22 @@ describe Paperclip::ContentTypeDetector do
     FileUtils.rm @filename
   end
 
+  # https://github.com/kreeti/kt-paperclip/issues/173
+  #
+  # Marcel is passed the file path as a `name:` hint, so when the bytes are
+  # ambiguous it answers from the extension rather than the content. The
+  # detected type must come from the bytes, otherwise renaming a file is enough
+  # to defeat spoof detection.
+  it "detects the type from the contents, not the extension, for ambiguous content" do
+    @filename = "#{Dir.tmpdir}/wrong.jpg"
+    File.open(@filename, "w+") do |file|
+      file.puts "WRONG IMAGE"
+      file.rewind
+      assert_equal "text/plain", Paperclip::ContentTypeDetector.new(file.path).detect
+    end
+    FileUtils.rm @filename
+  end
+
   it "returns a sensible default if something is wrong, like the file is gone" do
     @filename = "/path/to/nothing"
     assert_equal "application/octet-stream", Paperclip::ContentTypeDetector.new(@filename).detect
