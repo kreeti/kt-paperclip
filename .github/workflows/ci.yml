@@ -5,6 +5,11 @@ on:
     branches: [master]
   pull_request: ~
 
+env:
+  # Pinned so the build is reproducible and the ImageMagick 7 cache key changes
+  # when the version is bumped. See https://github.com/ImageMagick/ImageMagick/releases
+  IMAGEMAGICK_VERSION: 7.1.2-33
+
 jobs:
   rubocop:
     runs-on: ubuntu-latest
@@ -19,20 +24,25 @@ jobs:
         run: bundle exec rubocop
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        # ImageMagick 6 rows are pinned to ubuntu-24.04: it is the last image
+        # whose `imagemagick` apt package is still ImageMagick 6. Newer Ubuntu
+        # ships ImageMagick 7 under that name, which would silently turn these
+        # rows into duplicate IM7 runs. ImageMagick 7 rows build from source,
+        # so they can float with ubuntu-latest.
         include:
-          - { ruby: ruby-2.7,       rails: '5.2', imagemagick: '7' }
-          - { ruby: ruby-3.0,       rails: '6.1', imagemagick: '6' }
-          - { ruby: ruby-3.1,       rails: '7.0', imagemagick: '7' }
-          - { ruby: ruby-3.2,       rails: '7.1', imagemagick: '6' }
-          - { ruby: ruby-3.3,       rails: '7.2', imagemagick: '7' }
-          - { ruby: ruby-3.4,       rails: '8.0', imagemagick: '6' }
-          - { ruby: ruby-4.0,       rails: '8.1', imagemagick: '7' }
-          - { ruby: jruby-10.0,     rails: '7.2', imagemagick: '7' }
-          - { ruby: truffleruby-24, rails: '8.1', imagemagick: '7' }
+          - { ruby: ruby-2.7,       rails: '5.2', imagemagick: '7', os: ubuntu-latest }
+          - { ruby: ruby-3.0,       rails: '6.1', imagemagick: '6', os: ubuntu-24.04 }
+          - { ruby: ruby-3.1,       rails: '7.0', imagemagick: '7', os: ubuntu-latest }
+          - { ruby: ruby-3.2,       rails: '7.1', imagemagick: '6', os: ubuntu-24.04 }
+          - { ruby: ruby-3.3,       rails: '7.2', imagemagick: '7', os: ubuntu-latest }
+          - { ruby: ruby-3.4,       rails: '8.0', imagemagick: '6', os: ubuntu-24.04 }
+          - { ruby: ruby-4.0,       rails: '8.1', imagemagick: '7', os: ubuntu-latest }
+          - { ruby: jruby-10.0,     rails: '7.2', imagemagick: '7', os: ubuntu-latest }
+          - { ruby: truffleruby-24, rails: '8.1', imagemagick: '7', os: ubuntu-latest }
 
     name: ${{matrix.ruby}} rails-${{matrix.rails}} im-${{matrix.imagemagick}}
 
@@ -47,6 +57,14 @@ jobs:
           sudo rm -f /etc/ImageMagick-6/policy.xml
           convert -version
 
+      # The cached build is linked against the image's system libraries, so a
+      # cache entry is only valid for the image that produced it. runner.os is
+      # just "Linux" on every Ubuntu, so key on the actual distro release.
+      - name: Identify runner image
+        if: matrix.imagemagick == '7'
+        id: runner-image
+        run: echo "id=$(. /etc/os-release && echo "${ID}-${VERSION_ID}")" >> "$GITHUB_OUTPUT"
+
       - name: Cache ImageMagick 7
         if: matrix.imagemagick == '7'
         id: cache-im7
@@ -59,7 +77,7 @@ jobs:
             /usr/local/lib/ImageMagick-*
             /usr/local/etc/ImageMagick-7
             /usr/local/share/ImageMagick-7
-          key: imagemagick7-${{ runner.os }}
+          key: imagemagick7-${{ env.IMAGEMAGICK_VERSION }}-${{ steps.runner-image.outputs.id }}-${{ runner.arch }}
 
       - name: Install ImageMagick 7 dependencies
         if: matrix.imagemagick == '7'
@@ -75,9 +93,10 @@ jobs:
         if: matrix.imagemagick == '7' && steps.cache-im7.outputs.cache-hit != 'true'
         run: |
           cd /tmp
-          wget -q https://imagemagick.org/archive/ImageMagick.tar.gz
+          curl -fsSL -o ImageMagick.tar.gz \
+            https://github.com/ImageMagick/ImageMagick/archive/refs/tags/${IMAGEMAGICK_VERSION}.tar.gz
           tar xzf ImageMagick.tar.gz
-          cd ImageMagick-*
+          cd ImageMagick-${IMAGEMAGICK_VERSION}
           ./configure --with-modules --enable-shared --quiet
           make -j$(nproc) --quiet
           sudo make install --quiet
