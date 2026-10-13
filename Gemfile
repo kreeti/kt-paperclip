@@ -7,6 +7,14 @@ gemspec
 rails_version = "~> #{ENV['RAILS_VERSION']}.0" if ENV["RAILS_VERSION"]
 gem "rails", rails_version
 
+# ActiveSupport's JSON encoder calls JSON.generate(jsonified, quirks_mode: true,
+# max_nesting: false). json 3.0 removed the quirks_mode keyword, so to_json
+# raises ArgumentError on the Rails versions that still pass it. Upstream fixed
+# this in activesupport 7.2.4 and 8.1.0; it is still present in 5.2-7.1 and 8.0,
+# which is why the affected list below is not a contiguous range.
+json_incompatible_rails = %w[5.2 6.1 7.0 7.1 8.0]
+gem "json", "< 3" if json_incompatible_rails.include?(ENV["RAILS_VERSION"])
+
 if RUBY_ENGINE == "jruby"
   gem "activerecord-jdbcsqlite3-adapter", ">= 70.0"
 else
