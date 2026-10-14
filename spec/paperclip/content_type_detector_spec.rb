@@ -49,6 +49,19 @@ describe Paperclip::ContentTypeDetector do
     FileUtils.rm @filename
   end
 
+  # The filename is a deliberate input here -- it is what distinguishes .xlsm from .xlsx above, and
+  # what keeps a .csv from being stored as text/plain. The check that must ignore the filename is
+  # Paperclip::MediaTypeSpoofDetector; see its spec.
+  it "uses the filename as a hint when the contents are ambiguous" do
+    @filename = "#{Dir.tmpdir}/wrong.jpg"
+    File.open(@filename, "w+") do |file|
+      file.puts "WRONG IMAGE"
+      file.rewind
+      assert_equal "image/jpeg", Paperclip::ContentTypeDetector.new(file.path).detect
+    end
+    FileUtils.rm @filename
+  end
+
   it "returns a sensible default if something is wrong, like the file is gone" do
     @filename = "/path/to/nothing"
     assert_equal "application/octet-stream", Paperclip::ContentTypeDetector.new(@filename).detect
