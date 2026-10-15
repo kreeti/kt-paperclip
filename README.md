@@ -581,6 +581,7 @@ gems along side with Paperclip:
 * [paperclip-azure](https://github.com/supportify/paperclip-azure)
 * [paperclip-azure-storage](https://github.com/gmontard/paperclip-azure-storage)
 * [paperclip-dropbox](https://github.com/janko-m/paperclip-dropbox)
+* [paperclip-oracle-object-storage](https://github.com/prosas/paperclip-oracle-object-storage)
 
 ### Understanding Storage
 
