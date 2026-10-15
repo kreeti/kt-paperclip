@@ -1,4 +1,5 @@
 8.1.0 [UNRELEASED]
+* Documentation: Document Oracle Object Storage via [paperclip-oracle-object-storage](https://github.com/prosas/paperclip-oracle-object-storage).
 
 8.0.0 (2026-06-30)
 * Version Support: Drop support for Ruby 2.6 and earlier (Rails support stays at 4.2 and later)
