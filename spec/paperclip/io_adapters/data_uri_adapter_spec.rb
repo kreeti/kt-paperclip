@@ -25,6 +25,39 @@ describe Paperclip::DataUriAdapter do
     assert_equal Paperclip::DataUriAdapter, adapter.class
   end
 
+  context "decoding the payload" do
+    after { @adapter.close if @adapter }
+
+    def decoded(uri)
+      @adapter = Paperclip.io_adapters.for(uri)
+      @adapter.read
+    end
+
+    it "decodes line-wrapped base64" do
+      wrapped = Base64.encode64("a" * 200)
+      expect(wrapped).to include("\n")
+      assert_equal "a" * 200, decoded("data:text/plain;base64,#{wrapped}")
+    end
+
+    it "decodes a payload containing newlines before and after the data" do
+      assert_equal "hello", decoded("data:text/plain;base64,\n#{Base64.strict_encode64("hello")}\n")
+    end
+
+    it "decodes an empty payload to an empty file" do
+      assert_equal "", decoded("data:text/plain;base64,")
+    end
+
+    it "decodes without a media type" do
+      assert_equal "hello", decoded("data:;base64,#{Base64.strict_encode64("hello")}")
+    end
+
+    it "does not capture the payload when matching" do
+      match = Paperclip::DataUriAdapter::REGEXP.match("data:image/png;base64,#{original_base64_content}")
+      assert_equal 2, match.size
+      assert_equal "image/png", match[1]
+    end
+  end
+
   context "a new instance" do
     before do
       @contents = "data:image/png;base64,#{original_base64_content}"

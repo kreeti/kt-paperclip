@@ -1,4 +1,5 @@
 8.1.0 [UNRELEASED]
+* Fix: `Paperclip::DataUriAdapter` no longer captures the whole base64 payload while matching. The match used to peak at roughly 50-80x the size of the data URI in memory. `DataUriAdapter::REGEXP` now matches only the `data:<type>;base64,` prefix and has one capture group (the media type) instead of two.
 
 8.0.1 (2026-10-12)
 * Security: Fix a content type spoof detection regression introduced in 8.0.0 (https://github.com/kreeti/kt-paperclip/issues/173). `Paperclip::MediaTypeSpoofDetector` now determines the content type from the file contents only. 8.0.0 passed the filename to Marcel as a hint, so content without a magic number of its own -- plain text, for example -- was typed from its extension, and a text file renamed to ".jpg" was accepted as `image/jpeg`.
