@@ -1,4 +1,5 @@
 8.1.0 [UNRELEASED]
+* Documentation: Document Oracle Object Storage via [paperclip-oracle-object-storage](https://github.com/prosas/paperclip-oracle-object-storage).
 
 8.0.1 (2026-10-12)
 * Security: Fix a content type spoof detection regression introduced in 8.0.0 (https://github.com/kreeti/kt-paperclip/issues/173). `Paperclip::MediaTypeSpoofDetector` now determines the content type from the file contents only. 8.0.0 passed the filename to Marcel as a hint, so content without a magic number of its own -- plain text, for example -- was typed from its extension, and a text file renamed to ".jpg" was accepted as `image/jpeg`.
